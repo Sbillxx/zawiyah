@@ -1,12 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Allow ngrok free domains and tunnels for Next.js dev server & HMR */
+  allowedDevOrigins: [
+    "always-overcome-demanding.ngrok-free.dev",
+    "*.ngrok-free.app",
+    "*.ngrok-free.dev",
+    "*.ngrok.app",
+    "*.ngrok.io",
+    "localhost:3000",
+    "127.0.0.1:3000",
+  ],
   experimental: {
     agentFeedback: true,
   },
-  cacheComponents: true,
-  partialPrefetching: true,
   turbopack: {
     rules: {
       "*.css": {
