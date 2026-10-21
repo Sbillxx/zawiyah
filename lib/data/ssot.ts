@@ -3,6 +3,7 @@ import {
   getAllZawiyah as getAllZawiyahDb,
   getDashboardStats as getDashboardStatsDb,
   getUsersList as getUsersListDb,
+  getAllDonatur as getAllDonaturDb,
   checkDbConnection as checkDbConnectionDb,
   FALLBACK_STATS,
   FALLBACK_ZAWIYAH,
@@ -11,9 +12,10 @@ import {
   type Zawiyah,
   type DashboardStats,
   type UserAccount,
+  type Donatur,
 } from '../db';
 
-export type { Jamaah, Zawiyah, DashboardStats, UserAccount };
+export type { Jamaah, Zawiyah, DashboardStats, UserAccount, Donatur };
 
 export async function checkDbConnection() {
   return await checkDbConnectionDb();
@@ -36,6 +38,10 @@ export async function getDashboardStats(allowFallback = false): Promise<Dashboar
 
 export async function getUsersList(allowFallback = false): Promise<UserAccount[]> {
   return await getUsersListDb(allowFallback);
+}
+
+export async function getAllDonatur(): Promise<Donatur[]> {
+  return await getAllDonaturDb();
 }
 
 export { FALLBACK_STATS, FALLBACK_ZAWIYAH, FALLBACK_USERS };

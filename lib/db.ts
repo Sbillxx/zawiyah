@@ -29,6 +29,26 @@ export interface Zawiyah {
   status?: string;
 }
 
+export interface Donatur {
+  id: string;
+  no_urut: number;
+  nama: string;
+  jenis_kelamin: string;
+  kategori_donatur: 'Perorangan' | 'Lembaga / Usaha' | string;
+  telepon: string | null;
+  email: string | null;
+  ktp: string | null;
+  alamat: string | null;
+  zawiyah_id: string | null;
+  zawiyah_nama: string | null;
+  parent_donatur: string | null;
+  pekerjaan: string | null;
+  kantor_wilayah: string;
+  jamaah_id: string | null;
+  status: string;
+  created_at?: string;
+}
+
 export interface DashboardStats {
   totalJamaah: number;
   totalZawiyah: number;
@@ -37,6 +57,7 @@ export interface DashboardStats {
   totalPerempuan: number;
   totalKoperasi: number;
   totalAktif: number;
+  totalDonatur?: number;
   topZawiyah: Zawiyah[];
   topPekerjaan: { label: string; count: number }[];
   pctLaki: number;
@@ -329,6 +350,14 @@ export async function getDashboardStats(allowFallback = false): Promise<Dashboar
     const totalKoperasi = Number(totalKoperasiRows[0]?.count) || 0;
     const totalAktif = Number(totalAktifRows[0]?.count) || 0;
 
+    let totalDonatur = 0;
+    try {
+      const [totalDonaturRows]: any = await pool.query('SELECT COUNT(*) as count FROM donatur');
+      totalDonatur = Number(totalDonaturRows[0]?.count) || 0;
+    } catch {
+      // ignore if table doesn't exist in fallback
+    }
+
     const pctLaki = Math.round((totalLaki / totalJamaah) * 100);
     const pctPerempuan = Math.round((totalPerempuan / totalJamaah) * 100);
     const pctAgniaCare = ((totalAgniaCare / totalJamaah) * 100).toFixed(1);
@@ -342,6 +371,7 @@ export async function getDashboardStats(allowFallback = false): Promise<Dashboar
       totalPerempuan,
       totalKoperasi,
       totalAktif,
+      totalDonatur,
       topZawiyah: topZawiyahRows as Zawiyah[],
       topPekerjaan: topPekerjaanRows as { label: string; count: number }[],
       pctLaki,
@@ -361,3 +391,38 @@ export async function getDashboardStats(allowFallback = false): Promise<Dashboar
     );
   }
 }
+
+// ----------------------------------------------------
+// 7. Donatur Queries (Kanwakil Jawa Barat / Agnia Care)
+// ----------------------------------------------------
+export async function getAllDonatur(): Promise<Donatur[]> {
+  try {
+    const [rows]: any = await pool.query(`
+      SELECT
+        id,
+        no_urut,
+        nama,
+        jenis_kelamin,
+        kategori_donatur,
+        telepon,
+        email,
+        ktp,
+        alamat,
+        zawiyah_id,
+        zawiyah_nama,
+        parent_donatur,
+        pekerjaan,
+        kantor_wilayah,
+        jamaah_id,
+        status,
+        created_at
+      FROM donatur
+      ORDER BY no_urut ASC
+    `);
+    return rows as Donatur[];
+  } catch (error: any) {
+    console.warn('Gagal mengambil data donatur dari MySQL:', error?.message);
+    return [];
+  }
+}
+

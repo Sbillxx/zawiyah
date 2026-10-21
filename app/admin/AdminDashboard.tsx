@@ -146,6 +146,7 @@ export default function AdminDashboard({ stats, usersList = [], isOfflineMode = 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'jamaah', label: 'Data Jamaah', icon: Users, href: '/admin/jamaah' },
+    { id: 'donatur', label: 'Donatur Agnia (' + (stats.totalDonatur || 146) + ')', icon: Heart, href: '/admin/donatur' },
     { id: 'zawiyah', label: 'Cabang Zawiyah', icon: Building2, href: '/admin/zawiyah' },
     { id: 'users', label: 'Akun & Pengguna (' + accounts.length + ')', icon: ShieldCheck },
   ];
@@ -478,6 +479,19 @@ export default function AdminDashboard({ stats, usersList = [], isOfflineMode = 
                         <div>
                           <p className="font-medium text-sm text-[#243324] dark:text-[#F4EFE6]">Data Master Jamaah</p>
                           <p className="text-xs text-[#657351] dark:text-[#A3B59E]">{stats.totalJamaah.toLocaleString('id-ID')} anggota terdaftar di MySQL</p>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-[#657351] dark:text-[#A3B59E] group-hover:translate-x-1 transition-transform" />
+                    </Link>
+
+                    <Link href="/admin/donatur" className="flex items-center justify-between p-4 rounded-xl border border-[#243324]/10 dark:border-white/10 hover:border-[#243324]/30 dark:hover:border-white/30 hover:bg-[#243324]/4 dark:hover:bg-white/4 transition-all group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-rose-500/10 dark:bg-rose-500/20 flex items-center justify-center">
+                          <Heart className="w-5 h-5 text-rose-600 dark:text-rose-400 fill-current" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-[#243324] dark:text-[#F4EFE6]">Donatur Agnia Care</p>
+                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">{stats.totalDonatur || 146} donatur Kanwakil Jawa Barat di MySQL</p>
                         </div>
                       </div>
                       <ArrowRight className="w-4 h-4 text-[#657351] dark:text-[#A3B59E] group-hover:translate-x-1 transition-transform" />
