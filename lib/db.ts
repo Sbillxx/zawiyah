@@ -113,7 +113,8 @@ export const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  connectTimeout: 2500, // 2.5s quick fail if MySQL is offline
+  connectTimeout: 8000,
+  ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
 });
 
 // Quick connection healthcheck

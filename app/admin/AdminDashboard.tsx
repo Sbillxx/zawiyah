@@ -33,6 +33,7 @@ interface Stats {
   totalPerempuan: number;
   totalKoperasi: number;
   totalAktif: number;
+  totalDonatur?: number;
   topZawiyah: Zawiyah[];
   topPekerjaan: { label: string; count: number }[];
   pctLaki: number;
