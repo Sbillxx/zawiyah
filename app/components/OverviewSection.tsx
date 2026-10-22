@@ -31,20 +31,23 @@ export const OverviewSection: React.FC = () => {
         >
           <motion.img
             style={{ y: imageY }}
-            src={IMAGES.fiftyTwoRooftops}
-            alt="Fifty-two London rooftops transformed into living biodiversity sanctuaries"
+            src={IMAGES.zawiyahSanctuaryHall}
+            alt="Majelis Dzikir dan Pembinaan Ruhani Zawiyah Idrisiyyah"
             referrerPolicy="no-referrer"
             className="absolute top-0 left-0 w-full h-[135%] object-cover object-center max-w-none will-change-transform"
           />
 
           {/* Subtle bottom gradient overlay for legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B1D]/85 via-[#1F2B1D]/25 to-transparent pointer-events-none z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B1D]/90 via-[#1F2B1D]/30 to-transparent pointer-events-none z-10" />
 
           {/* Overlay Insight / "So What" */}
           <div className="absolute bottom-8 left-8 right-8 sm:bottom-12 sm:left-12 sm:right-12 z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-[#F4EFE6]">
-            <div className="max-w-2xl">
+            <div className="max-w-3xl">
+              <span className="inline-block text-xs uppercase tracking-widest text-[#E8DCC4] font-semibold mb-2 bg-[#1F2B1D]/60 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/15">
+                Pusat Pembinaan Ruhani & Khidmah Kejamaahan
+              </span>
               <p className="font-display text-2xl sm:text-4xl lg:text-5xl leading-tight font-light text-[#F4EFE6] drop-shadow-md">
-                Fifty-two rooftops transformed into blooming, living havens for London’s wildlife.
+                Satu wadah terpadu untuk pembinaan ruhani salik, kemandirian ekonomi, dan khidmat sosial umat.
               </p>
             </div>
           </div>
@@ -61,31 +64,31 @@ export const OverviewSection: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 pt-4 pb-4 border-t border-[#243324]/10 dark:border-white/10">
             <div className="space-y-1">
               <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={9.7} decimals={1} suffix="M" />
+                <AnimatedNumber value={4307} />
               </div>
-              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Estimated Honeybees Supported</p>
+              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Total Jamaah Terdata</p>
               <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
-                Buzzing happily across London neighborhoods
+                Data tunggal terverifikasi Single Source of Truth (SSOT)
               </p>
             </div>
 
             <div className="space-y-1">
               <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={REPORT_METADATA.totalHives} />
+                <AnimatedNumber value={86} />
               </div>
-              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Active Rooftop Apiaries</p>
+              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Cabang Zawiyah Aktif</p>
               <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
-                Maintained across 52 partner buildings
+                Tersebar di Jawa Barat, DKI, Jawa Tengah, Jatim & Luar Jawa
               </p>
             </div>
 
             <div className="space-y-1">
               <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={17889} suffix=" m²" />
+                <AnimatedNumber value={453} />
               </div>
-              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Engineered Wildflower Meadow</p>
+              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Donatur & Peserta Agnia Care</p>
               <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
-                Rich with 24+ native species per site
+                Penyaluran filantropi, santunan dhuafa & beasiswa santri
               </p>
             </div>
           </div>

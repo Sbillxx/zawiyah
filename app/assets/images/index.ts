@@ -7,4 +7,5 @@ export const IMAGES = {
   strataSubstrateWater: '/assets/images/strata_substrate_deep.jpg',
   fiftyTwoRooftops: '/assets/images/fifty_two_rooftops.jpg',
   communityHarvest: '/assets/images/community_harvest.jpg',
+  zawiyahSanctuaryHall: '/assets/images/zawiyah_sanctuary_hall.jpg',
 };
