@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "SAJADA — Sistem Monitoring Data Jamaah Zawiyah",
-  description: "Sistem Administrasi & Monitoring Jamaah Zawiyah Idrisiyyah — Menghubungkan data-data jamaah di setiap zawiyah di nusantara.",
+  description: "Sistem Administrasi & Monitoring Jamaah Zawiyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
 };
 
 export default function RootLayout({

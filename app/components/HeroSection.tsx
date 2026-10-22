@@ -80,7 +80,7 @@ export const HeroSection: React.FC = () => {
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl text-[#F4EFE6] font-light max-w-2xl mx-auto pt-1 leading-relaxed">
-            Menghubungkan data-data jamaah di setiap zawiyah di nusantara.
+            Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.
           </p>
         </motion.div>
       </motion.div>
