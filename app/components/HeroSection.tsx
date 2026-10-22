@@ -72,15 +72,15 @@ export const HeroSection: React.FC = () => {
           className="space-y-4 sm:space-y-6"
         >
           <p className="text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase text-[#F4EFE6]">
-            Annual Impact Report 2025 / 2026
+            Sistem Administrasi & Monitoring Jamaah Zawiyah
           </p>
 
           <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-[0.95] text-[#F4EFE6] font-normal">
-            The Urban Hive Project
+            SAJADA
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl text-[#F4EFE6] font-light max-w-2xl mx-auto pt-1 leading-relaxed">
-            Cultivating rooftop sanctuaries and connected pollinator corridors across London.
+            Menghubungkan data-data jamaah di setiap zawiyah di nusantara.
           </p>
         </motion.div>
       </motion.div>

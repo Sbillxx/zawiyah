@@ -45,7 +45,7 @@ export const Navbar: React.FC = () => {
         </Link>
         <div className={`transition-colors duration-300 ${reportTextColor}`}>
           <span className="text-xs sm:text-sm font-medium tracking-widest uppercase select-none hidden xs:inline-block">
-            2026 report
+            SAJADA
           </span>
         </div>
 

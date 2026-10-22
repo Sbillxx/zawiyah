@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "The Urban Hive Project: 2026 Annual Report",
-  description: "Cultivating rooftop sanctuaries and connected pollinator corridors across London.",
+  title: "SAJADA — Sistem Monitoring Data Jamaah Zawiyah",
+  description: "Sistem Administrasi & Monitoring Jamaah Zawiyah Idrisiyyah — Menghubungkan data-data jamaah di setiap zawiyah di nusantara.",
 };
 
 export default function RootLayout({
