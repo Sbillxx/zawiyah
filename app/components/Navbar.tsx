@@ -35,12 +35,9 @@ export const Navbar: React.FC = () => {
               exit={{ opacity: 0, x: -12 }}
               transition={{ duration: 0.2 }}
             >
-              <Link href="/" className="flex items-center gap-2 group">
+              <Link href="/" className="flex items-center group">
                 <span className="font-display font-semibold text-lg tracking-wider text-[#1F2B1D] dark:text-[#F4EFE6] group-hover:opacity-80 transition-opacity">
                   SAJADA
-                </span>
-                <span className="text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#243324]/10 dark:bg-white/10 text-[#4A5D44] dark:text-[#CBD7C7] font-medium hidden sm:inline-block">
-                  Zawiyah
                 </span>
               </Link>
             </motion.div>
