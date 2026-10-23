@@ -2,18 +2,15 @@
 
 import React, { useState, useRef, useMemo } from 'react';
 import { motion, useScroll, AnimatePresence } from 'motion/react';
-import { MapPin, BarChart3, ZoomIn, ZoomOut, Compass, Users, Building2, HeartHandshake } from 'lucide-react';
+import { MapPin, BarChart3, ZoomIn, ZoomOut, Compass } from 'lucide-react';
 import { AnimatedNumber } from './AnimatedNumber';
-import {
-  REGIONAL_CLUSTERS,
-  ZAWIYAH_NODES,
-  RegionalCluster,
-} from '../data/indonesiaMapData';
-import { IndonesiaZawiyahMap } from './IndonesiaZawiyahMap';
+import { BOROUGHS_DATA, REPORT_METADATA } from '../data/reportData';
+import { BOROUGH_METRICS } from '../data/londonMapData';
+import { LondonPollinatorMap } from './LondonPollinatorMap';
 
 export const BoroughCorridorSection: React.FC = () => {
-  const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
-  const [hoveredCluster, setHoveredCluster] = useState<string | null>(null);
+  const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
+  const [hoveredBorough, setHoveredBorough] = useState<string | null>(null);
   const [activeListIndex, setActiveListIndex] = useState<number>(0);
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
@@ -25,13 +22,13 @@ export const BoroughCorridorSection: React.FC = () => {
     offset: ['start end', 'end start'],
   });
 
-  const activeClusterInList = REGIONAL_CLUSTERS[activeListIndex] || REGIONAL_CLUSTERS[0];
+  const activeBoroughInList = BOROUGHS_DATA[activeListIndex] || BOROUGHS_DATA[0];
 
-  const handleSelectClusterFromMap = (name: string | null) => {
-    setSelectedCluster(name);
+  const handleSelectBoroughFromMap = (name: string | null) => {
+    setSelectedBorough(name);
     if (name) {
-      const idx = REGIONAL_CLUSTERS.findIndex(
-        (c) => c.nama.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(c.singkatan.toLowerCase())
+      const idx = BOROUGHS_DATA.findIndex(
+        (b) => b.borough.toLowerCase() === name.toLowerCase()
       );
       if (idx !== -1) {
         setActiveListIndex(idx);
@@ -39,11 +36,11 @@ export const BoroughCorridorSection: React.FC = () => {
     }
   };
 
-  const handleSelectClusterFromList = (idx: number) => {
+  const handleSelectBoroughFromList = (idx: number) => {
     setActiveListIndex(idx);
-    const selected = REGIONAL_CLUSTERS[idx];
+    const selected = BOROUGHS_DATA[idx];
     if (selected) {
-      setSelectedCluster(selected.nama);
+      setSelectedBorough(selected.borough);
     }
   };
 
@@ -64,37 +61,42 @@ export const BoroughCorridorSection: React.FC = () => {
     }
   };
 
-  const handleViewClusterOnMap = (clusterName: string) => {
-    setSelectedCluster(clusterName);
+  const handleViewBoroughOnMap = (boroughName: string) => {
+    setSelectedBorough(boroughName);
     setViewMode('map');
     scrollToCardTop();
   };
 
   const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.25, 2.5));
   const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.25, 0.85));
-  const handleResetZoom = () => setZoomLevel(1);
 
   // Compute active display info for the bottom dark green bar
   const activeMetricsDisplay = useMemo(() => {
-    const targetName = hoveredCluster || selectedCluster;
+    const targetName = hoveredBorough || selectedBorough;
     if (targetName) {
-      const cluster = REGIONAL_CLUSTERS.find(
-        (c) => c.nama.toLowerCase().includes(targetName.toLowerCase()) ||
-               c.singkatan.toLowerCase().includes(targetName.toLowerCase())
-      );
-      if (cluster) {
+      const key = targetName.toLowerCase();
+      const metrics = BOROUGH_METRICS[key];
+      if (metrics) {
         return {
-          title: `Wilayah ${cluster.nama}`,
-          stats: `${cluster.totalCabang} Cabang Zawiyah • ${cluster.totalJamaah.toLocaleString('id-ID')} Jamaah Terdata • ${cluster.donaturAgnia} Donatur Agnia Care • Pusat: ${cluster.pusatWilayah}`,
+          title: `${metrics.name} Borough Overview`,
+          stats: `${metrics.sites} Sanctuaries • ${metrics.hives} Hives • ${metrics.wildflowerAreaSqM.toLocaleString('en-GB')} m² Wildflower Meadow • ${metrics.jarsDonated.toLocaleString('en-GB')} Donated Jars`,
+        };
+      }
+      // Fallback lookup from BOROUGHS_DATA
+      const item = BOROUGHS_DATA.find((b) => b.borough.toLowerCase() === targetName.toLowerCase());
+      if (item) {
+        return {
+          title: `${item.borough} Borough Overview`,
+          stats: `${item.sites} Sanctuaries • ${item.hives} Hives`,
         };
       }
     }
 
     return {
-      title: 'Distribusi Jaringan 86 Cabang Zawiyah Nusantara',
-      stats: '4.307 Jamaah Terdata • 86 Cabang Aktif • 146 Donatur Agnia Care Kanwakil Jabar • Pusat: Zawiyah Pagendingan Tasikmalaya',
+      title: 'All 11 Active Boroughs Overview',
+      stats: `${REPORT_METADATA.totalSites} Sanctuaries • ${REPORT_METADATA.totalHives} Hives • ${REPORT_METADATA.meadowAreaSqM.toLocaleString('en-GB')} m² Wildflower Meadow • ${REPORT_METADATA.jarsDonated.toLocaleString('en-GB')} Donated Jars`,
     };
-  }, [hoveredCluster, selectedCluster]);
+  }, [hoveredBorough, selectedBorough]);
 
   return (
     <section
@@ -105,47 +107,45 @@ export const BoroughCorridorSection: React.FC = () => {
       <div className="max-w-6xl mx-auto w-full space-y-8 sm:space-y-10">
         {/* Section Headline / Strategic Context */}
         <div className="space-y-4 max-w-3xl">
-          <p className="text-sm font-medium tracking-wide text-[#657351] dark:text-[#A3B59E] uppercase">
-            Jaringan Dakwah & Sebaran Wilayah
+          <p className="text-sm font-medium tracking-wide text-[#657351] dark:text-[#A3B59E]">
+            Ecological Connectivity & Corridors
           </p>
           <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-normal leading-[1.05] tracking-tight">
-            Simpul zawiyah dan sebaran jamaah di seluruh penjuru nusantara.
+            London’s fragmented rooftops are now a continuous pollinator highway.
           </h2>
           <p className="text-base sm:text-lg text-[#4A5D44] dark:text-[#D2CBBF] font-light leading-relaxed">
-            Dari Zawiyah Pusat Pagendingan Tasikmalaya hingga 86 cabang zawiyah di Jawa Barat, DKI Jakarta, Jawa Tengah, Jawa Timur, dan luar pulau, seluruh simpul terhubung dalam satu koordinasi pembinaan ruhani dan khidmah umat.
+            By situating wildflower meadows within 2 km of royal parks and river corridors, 194 active hives connect 11 municipal boroughs into safe foraging networks.
           </p>
         </div>
 
-        {/* Integrated Card Container */}
+        {/* Integrated Card Container Outlined with Dark Green (Background matching Hero Section #FBF9F5, soft shadow like Sector cards) */}
         <div
           ref={cardContainerRef}
           className="w-full bg-[#FBF9F5] dark:bg-[#152014] rounded-3xl sm:rounded-[2.5rem] border-2 border-[#243324] dark:border-[#384F35] shadow-lg overflow-hidden flex flex-col transition-colors duration-400"
         >
-          {/* Left-Aligned Control Bar */}
+          {/* Left-Aligned Control Bar (Clean with NO dividing border line below) */}
           <div className="px-5 pt-5 pb-3 sm:px-8 sm:pt-6 sm:pb-4 flex flex-wrap items-center justify-between gap-4 bg-[#FBF9F5] dark:bg-[#152014] transition-colors duration-400">
-            {/* View Switcher */}
+            {/* Left-Aligned View Switcher */}
             <div className="flex items-center bg-white/90 dark:bg-[#202E1E] backdrop-blur-md rounded-2xl border border-[#243324]/15 dark:border-white/15 p-1 shadow-2xs gap-1">
               <button
                 onClick={handleSwitchToMap}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                  viewMode === 'map'
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${viewMode === 'map'
                     ? 'bg-[#243324] dark:bg-[#344732] text-white dark:text-[#F4EFE6] shadow-xs'
                     : 'text-[#4A5D44] dark:text-[#CBD7C7] hover:text-[#1F2B1D] dark:hover:text-white hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28]'
-                }`}
+                  }`}
               >
                 <MapPin className="w-3.5 h-3.5" />
-                <span>Peta Jaringan Zawiyah</span>
+                <span>Interactive Map (52 Sites)</span>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                  viewMode === 'list'
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${viewMode === 'list'
                     ? 'bg-[#243324] dark:bg-[#344732] text-white dark:text-[#F4EFE6] shadow-xs'
                     : 'text-[#4A5D44] dark:text-[#CBD7C7] hover:text-[#1F2B1D] dark:hover:text-white hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28]'
-                }`}
+                  }`}
               >
                 <BarChart3 className="w-3.5 h-3.5" />
-                <span>Sebaran Klaster Wilayah</span>
+                <span>Borough Breakdown</span>
               </button>
             </div>
 
@@ -155,7 +155,7 @@ export const BoroughCorridorSection: React.FC = () => {
                 <button
                   onClick={handleZoomIn}
                   className="p-1.5 text-[#243324] dark:text-[#F4EFE6] hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28] rounded-xl transition-colors cursor-pointer"
-                  title="Perbesar Peta"
+                  title="Zoom In"
                   aria-label="Zoom In"
                 >
                   <ZoomIn className="w-4 h-4" />
@@ -163,25 +163,16 @@ export const BoroughCorridorSection: React.FC = () => {
                 <button
                   onClick={handleZoomOut}
                   className="p-1.5 text-[#243324] dark:text-[#F4EFE6] hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28] rounded-xl transition-colors cursor-pointer"
-                  title="Perkecil Peta"
+                  title="Zoom Out"
                   aria-label="Zoom Out"
                 >
                   <ZoomOut className="w-4 h-4" />
                 </button>
-                {zoomLevel !== 1 && (
-                  <button
-                    onClick={handleResetZoom}
-                    className="px-2 py-1 text-[11px] text-[#243324] dark:text-[#F4EFE6] hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28] rounded-xl transition-colors cursor-pointer font-medium"
-                    title="Reset Zoom"
-                  >
-                    Reset
-                  </button>
-                )}
               </div>
             )}
           </div>
 
-          {/* Card Body: Map View or Regional Breakdown List */}
+          {/* Card Body: Map View or Borough Breakdown List */}
           <div className="relative w-full flex-1 bg-[#FBF9F5] dark:bg-[#152014] transition-colors duration-400">
             <AnimatePresence mode="wait">
               {viewMode === 'map' ? (
@@ -192,14 +183,13 @@ export const BoroughCorridorSection: React.FC = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <IndonesiaZawiyahMap
-                    selectedClusterName={selectedCluster}
-                    onSelectCluster={handleSelectClusterFromMap}
-                    onHoverCluster={setHoveredCluster}
+                  <LondonPollinatorMap
+                    selectedBoroughName={selectedBorough}
+                    onSelectBorough={handleSelectBoroughFromMap}
+                    onHoverBorough={setHoveredBorough}
                     zoomLevel={zoomLevel}
                     onZoomIn={handleZoomIn}
                     onZoomOut={handleZoomOut}
-                    onResetZoom={handleResetZoom}
                   />
                 </motion.div>
               ) : (
@@ -211,34 +201,31 @@ export const BoroughCorridorSection: React.FC = () => {
                   transition={{ duration: 0.2 }}
                   className="p-6 sm:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start bg-[#FBF9F5] dark:bg-[#152014] transition-colors duration-400"
                 >
-                  {/* Regional Cluster Ranking & Selector */}
+                  {/* Borough Ranking & Selector */}
                   <div className="lg:col-span-7 space-y-3">
-                    {REGIONAL_CLUSTERS.map((item, idx) => {
+                    {BOROUGHS_DATA.map((item, idx) => {
                       const isSelected = activeListIndex === idx;
-                      const barWidthPercent = Math.min((item.totalJamaah / 3026) * 100, 100);
+                      const barWidthPercent = (item.hives / 27) * 100;
 
                       return (
                         <button
-                          key={item.nama}
-                          onClick={() => handleSelectClusterFromList(idx)}
-                          className={`w-full text-left p-4 sm:p-5 rounded-2xl transition-all duration-200 flex items-center justify-between gap-4 cursor-pointer ${
-                            isSelected
+                          key={item.borough}
+                          onClick={() => handleSelectBoroughFromList(idx)}
+                          className={`w-full text-left p-4 sm:p-5 rounded-2xl transition-all duration-200 flex items-center justify-between gap-4 cursor-pointer ${isSelected
                               ? 'bg-white dark:bg-[#223320] shadow-md border border-[#243324]/12 dark:border-white/20 scale-[1.01]'
                               : 'hover:bg-white/60 dark:hover:bg-[#1F2F1D] border border-[#243324]/6 dark:border-white/10 bg-white/40 dark:bg-[#1C2A1B]/60'
-                          }`}
+                            }`}
                         >
                           <div className="flex-1 space-y-1.5">
                             <div className="flex items-center justify-between text-sm sm:text-base font-medium text-[#1F2B1D] dark:text-[#F4EFE6]">
-                              <span>{item.nama}</span>
-                              <span className="font-light text-[#657351] dark:text-[#A3B59E] text-xs">
-                                {item.totalCabang} cabang
-                              </span>
+                              <span>{item.borough}</span>
+                              <span className="font-light text-[#657351] dark:text-[#A3B59E]">{item.sites} sites</span>
                             </div>
 
                             {/* Proportional visual bar */}
                             <div className="w-full h-2 bg-[#243324]/10 dark:bg-white/15 rounded-full overflow-hidden">
                               <motion.div
-                                className="h-full rounded-full bg-emerald-600 dark:bg-emerald-400"
+                                className="h-full rounded-full bg-[#3B4D36] dark:bg-[#85E7B7]"
                                 initial={{ width: 0 }}
                                 animate={{ width: `${barWidthPercent}%` }}
                                 transition={{ type: 'spring', stiffness: 100, damping: 20 }}
@@ -248,73 +235,62 @@ export const BoroughCorridorSection: React.FC = () => {
 
                           <div className="text-right shrink-0 pl-2">
                             <span className="font-display text-2xl sm:text-3xl text-[#1F2B1D] dark:text-[#F4EFE6] font-normal">
-                              {item.totalJamaah.toLocaleString('id-ID')}
+                              {item.hives}
                             </span>
-                            <span className="block text-xs text-[#657351] dark:text-[#A3B59E]">jamaah</span>
+                            <span className="block text-xs text-[#657351] dark:text-[#A3B59E]">hives</span>
                           </div>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Dynamic Cluster Focus Panel */}
+                  {/* Dynamic Borough Insight Panel */}
                   <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
                     <motion.div
-                      key={activeClusterInList.nama}
+                      key={activeBoroughInList.borough}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                       className="p-7 sm:p-8 rounded-3xl bg-white dark:bg-[#202E1E] border border-[#243324]/10 dark:border-white/15 shadow-md space-y-6 transition-colors duration-400"
                     >
                       <div className="space-y-1.5">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                          Fokus Wilayah
+                        <p className="text-xs font-medium uppercase tracking-wider text-[#657351] dark:text-[#A3B59E]">
+                          Borough Focus
                         </p>
-                        <h3 className="font-display text-2xl sm:text-3xl text-[#1F2B1D] dark:text-[#F4EFE6]">
-                          {activeClusterInList.nama}
+                        <h3 className="font-display text-3xl sm:text-4xl text-[#1F2B1D] dark:text-[#F4EFE6]">
+                          {activeBoroughInList.borough}
                         </h3>
-                        <p className="text-xs text-[#657351] dark:text-[#A3B59E]">
-                          Sentra: <strong>{activeClusterInList.pusatWilayah}</strong>
-                        </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 py-3 border-y border-[#243324]/10 dark:border-white/10">
-                        <div className="p-3 rounded-2xl bg-[#F5F2EB] dark:bg-[#263825]">
-                          <div className="font-display text-2xl sm:text-3xl text-[#1F2B1D] dark:text-[#F4EFE6]">
-                            <AnimatedNumber value={activeClusterInList.totalJamaah} />
+                      <div className="grid grid-cols-2 gap-4 py-4 border-y border-[#243324]/10 dark:border-white/10">
+                        <div>
+                          <div className="font-display text-3xl sm:text-4xl text-[#1F2B1D] dark:text-[#F4EFE6]">
+                            <AnimatedNumber value={activeBoroughInList.hives} />
                           </div>
-                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">Jamaah Terdata</p>
+                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">Active Hives</p>
                         </div>
-                        <div className="p-3 rounded-2xl bg-[#F5F2EB] dark:bg-[#263825]">
-                          <div className="font-display text-2xl sm:text-3xl text-[#1F2B1D] dark:text-[#F4EFE6]">
-                            <AnimatedNumber value={activeClusterInList.totalCabang} />
+                        <div>
+                          <div className="font-display text-3xl sm:text-4xl text-[#1F2B1D] dark:text-[#F4EFE6]">
+                            <AnimatedNumber value={activeBoroughInList.sites} />
                           </div>
-                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">Cabang Zawiyah</p>
+                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">Rooftop Sanctuaries</p>
                         </div>
                       </div>
 
-                      <p className="text-sm text-[#3B4D36] dark:text-[#D2CBBF] font-light leading-relaxed">
-                        {activeClusterInList.deskripsi}
+                      <p className="text-sm sm:text-base text-[#3B4D36] dark:text-[#D2CBBF] font-light leading-relaxed">
+                        {activeBoroughInList.description}
                       </p>
 
-                      <div className="space-y-2 pt-1 border-t border-[#243324]/10 dark:border-white/10">
-                        <p className="text-xs font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Zawiyah Unggulan Wilayah:</p>
-                        <div className="space-y-1">
-                          {activeClusterInList.highlightZawiyah.map((z, i) => (
-                            <p key={i} className="text-xs text-[#4A5D44] dark:text-[#CBD7C7] flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                              <span>{z}</span>
-                            </p>
-                          ))}
-                        </div>
+                      <div className="pt-1 text-xs text-[#657351] dark:text-[#A3B59E] font-light">
+                        Contributes to continuous cross-borough pollinator stepping stones within 2km foraging radius.
                       </div>
 
                       <button
-                        onClick={() => handleViewClusterOnMap(activeClusterInList.nama)}
+                        onClick={() => handleViewBoroughOnMap(activeBoroughInList.borough)}
                         className="w-full py-3 px-4 rounded-xl bg-[#F5F2EB] dark:bg-[#2C3E2A] hover:bg-[#E8EFE6] dark:hover:bg-[#374D34] text-[#243324] dark:text-[#F4EFE6] font-medium text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer border border-[#243324]/10 dark:border-white/15"
                       >
-                        <Compass className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        <span>Lihat {activeClusterInList.singkatan} di Peta</span>
+                        <Compass className="w-3.5 h-3.5 text-[#3B4D36] dark:text-[#85E7B7]" />
+                        <span>View {activeBoroughInList.borough} on Map</span>
                       </button>
                     </motion.div>
                   </div>
@@ -323,7 +299,7 @@ export const BoroughCorridorSection: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Integrated Bottom Summary Card */}
+          {/* Integrated Bottom Summary Card (Dark green background with sand/white text, live hover/selection updates) */}
           <div className="w-full bg-[#243324] dark:bg-[#0E170E] px-6 py-4.5 sm:px-8 sm:py-5 text-[#F5F2EB] flex items-center justify-between gap-3 border-t-2 border-[#243324] dark:border-[#384F35] mt-auto min-h-[72px] transition-colors duration-400">
             <div className="space-y-0.5">
               <AnimatePresence mode="wait">
