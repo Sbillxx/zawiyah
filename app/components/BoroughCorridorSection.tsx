@@ -101,18 +101,18 @@ export const BoroughCorridorSection: React.FC = () => {
     <section
       id="sebaran-zawiyah"
       ref={containerRef}
-      className="relative min-h-screen py-20 sm:py-28 px-4 sm:px-8 lg:px-12 flex flex-col justify-center border-t border-[#243324]/10 dark:border-white/10 bg-[#F5F2EB] dark:bg-[#182417] text-[#243324] dark:text-[#F4EFE6] transition-colors duration-400"
+      className="relative min-h-screen py-14 sm:py-28 px-3 sm:px-8 lg:px-12 flex flex-col justify-center border-t border-[#243324]/10 dark:border-white/10 bg-[#F5F2EB] dark:bg-[#182417] text-[#243324] dark:text-[#F4EFE6] transition-colors duration-400"
     >
-      <div className="max-w-6xl mx-auto w-full space-y-8 sm:space-y-10">
+      <div className="max-w-6xl mx-auto w-full space-y-6 sm:space-y-10">
         {/* Section Headline */}
-        <div className="space-y-4 max-w-3xl">
-          <p className="text-sm font-medium tracking-wide text-[#657351] dark:text-[#A3B59E]">
+        <div className="space-y-3 sm:space-y-4 max-w-3xl">
+          <p className="text-xs sm:text-sm font-medium tracking-wide text-[#657351] dark:text-[#A3B59E]">
             Jaringan Dakwah & Sebaran Wilayah
           </p>
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-normal leading-[1.05] tracking-tight">
+          <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-normal leading-[1.1] sm:leading-[1.05] tracking-tight">
             Jaringan zawiyah menghubungkan jamaah dari Sumatera hingga Nusa Tenggara.
           </h2>
-          <p className="text-base sm:text-lg text-[#4A5D44] dark:text-[#D2CBBF] font-light leading-relaxed">
+          <p className="text-sm sm:text-lg text-[#4A5D44] dark:text-[#D2CBBF] font-light leading-relaxed">
             Dari Zawiyah Pusat Pagendingan Tasikmalaya, koridor dakwah menghubungkan 86 cabang di 7 klaster wilayah — tersebar di Jawa Barat, DKI Jakarta, Jawa Tengah, Jawa Timur, hingga Sumatera dan Kalimantan.
           </p>
         </div>
@@ -120,31 +120,31 @@ export const BoroughCorridorSection: React.FC = () => {
         {/* Integrated Card Container */}
         <div
           ref={cardContainerRef}
-          className="w-full bg-[#FBF9F5] dark:bg-[#152014] rounded-3xl sm:rounded-[2.5rem] border-2 border-[#243324] dark:border-[#384F35] shadow-lg overflow-hidden flex flex-col transition-colors duration-400"
+          className="w-full bg-[#FBF9F5] dark:bg-[#152014] rounded-2xl sm:rounded-[2.5rem] border-2 border-[#243324] dark:border-[#384F35] shadow-lg overflow-hidden flex flex-col transition-colors duration-400"
         >
           {/* Control Bar */}
-          <div className="px-5 pt-5 pb-3 sm:px-8 sm:pt-6 sm:pb-4 flex flex-wrap items-center justify-between gap-4 bg-[#FBF9F5] dark:bg-[#152014] transition-colors duration-400">
-            {/* View Switcher */}
-            <div className="flex items-center bg-white/90 dark:bg-[#202E1E] backdrop-blur-md rounded-2xl border border-[#243324]/15 dark:border-white/15 p-1 shadow-2xs gap-1">
+          <div className="px-3 pt-3.5 pb-2 sm:px-8 sm:pt-6 sm:pb-4 flex flex-wrap items-center justify-between gap-3 bg-[#FBF9F5] dark:bg-[#152014] transition-colors duration-400">
+            {/* View Switcher: Symmetrical 2-column on mobile, inline flex on desktop */}
+            <div className="w-full sm:w-auto grid grid-cols-2 sm:flex items-center bg-white/90 dark:bg-[#202E1E] backdrop-blur-md rounded-xl sm:rounded-2xl border border-[#243324]/15 dark:border-white/15 p-1 shadow-2xs gap-1">
               <button
                 onClick={handleSwitchToMap}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${viewMode === 'map'
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${viewMode === 'map'
                     ? 'bg-[#243324] dark:bg-[#344732] text-white dark:text-[#F4EFE6] shadow-xs'
                     : 'text-[#4A5D44] dark:text-[#CBD7C7] hover:text-[#1F2B1D] dark:hover:text-white hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28]'
                   }`}
               >
-                <MapPin className="w-3.5 h-3.5" />
-                <span>Peta Jaringan Zawiyah</span>
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">Peta Jaringan</span>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${viewMode === 'list'
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer ${viewMode === 'list'
                     ? 'bg-[#243324] dark:bg-[#344732] text-white dark:text-[#F4EFE6] shadow-xs'
                     : 'text-[#4A5D44] dark:text-[#CBD7C7] hover:text-[#1F2B1D] dark:hover:text-white hover:bg-[#F5F2EB] dark:hover:bg-[#2A3D28]'
                   }`}
               >
-                <BarChart3 className="w-3.5 h-3.5" />
-                <span>Klaster Wilayah</span>
+                <BarChart3 className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">Klaster Wilayah</span>
               </button>
             </div>
 
@@ -295,7 +295,7 @@ export const BoroughCorridorSection: React.FC = () => {
           </div>
 
           {/* Bottom Summary Bar */}
-          <div className="w-full bg-[#243324] dark:bg-[#0E170E] px-6 py-4.5 sm:px-8 sm:py-5 text-[#F5F2EB] flex items-center justify-between gap-3 border-t-2 border-[#243324] dark:border-[#384F35] mt-auto min-h-[72px] transition-colors duration-400">
+          <div className="w-full bg-[#243324] dark:bg-[#0E170E] px-4 py-3 sm:px-8 sm:py-5 text-[#F5F2EB] flex items-center justify-between gap-3 border-t-2 border-[#243324] dark:border-[#384F35] mt-auto min-h-[58px] sm:min-h-[72px] transition-colors duration-400">
             <div className="space-y-0.5">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -305,10 +305,10 @@ export const BoroughCorridorSection: React.FC = () => {
                   exit={{ opacity: 0, y: -3 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <span className="text-xs font-semibold text-[#A3B899] dark:text-[#85E7B7] uppercase tracking-wider block">
+                  <span className="text-[10px] sm:text-xs font-semibold text-[#A3B899] dark:text-[#85E7B7] uppercase tracking-wider block">
                     {activeMetricsDisplay.title}
                   </span>
-                  <p className="text-xs sm:text-sm text-[#F5F2EB] font-medium">
+                  <p className="text-[11px] sm:text-sm text-[#F5F2EB] font-medium leading-snug">
                     {activeMetricsDisplay.stats}
                   </p>
                 </motion.div>

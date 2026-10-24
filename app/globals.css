@@ -69,3 +69,12 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Custom scrollbar hiding for horizontal mobile chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
