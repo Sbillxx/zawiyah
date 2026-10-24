@@ -427,3 +427,413 @@ export async function getAllDonatur(): Promise<Donatur[]> {
   }
 }
 
+// ----------------------------------------------------
+// 8. Jamaah Mutation Functions (CRUD for Super Admin)
+// ----------------------------------------------------
+export async function getNextJamaahId(): Promise<string> {
+  try {
+    const [rows]: any = await pool.query(
+      "SELECT id FROM jamaah WHERE id LIKE 'MBR%' ORDER BY id DESC LIMIT 1"
+    );
+    if (rows && rows.length > 0) {
+      const lastId = rows[0].id;
+      const match = lastId.match(/MBR(\d+)/);
+      if (match) {
+        const nextNum = parseInt(match[1], 10) + 1;
+        return `MBR${String(nextNum).padStart(6, '0')}`;
+      }
+    }
+  } catch (err) {
+    console.warn('getNextJamaahId query error:', err);
+  }
+  return `MBR${Date.now().toString().slice(-6)}`;
+}
+
+export async function createJamaah(
+  data: Partial<Jamaah> & { nama: string },
+  auditUser?: { id: number; username: string }
+): Promise<Jamaah> {
+  const id = data.id?.trim() || (await getNextJamaahId());
+  const nama = data.nama.trim();
+  const jenisKelamin = data.jenisKelamin || 'Laki-laki';
+  const statusPernikahan = data.statusPernikahan || 'Menikah';
+  const tempatLahir = data.tempatLahir || '';
+  const tanggalLahir = data.tanggalLahir || '';
+  const email = data.email?.trim() || null;
+  const telepon = data.telepon?.trim() || '';
+  const ktp = data.ktp?.trim() || '';
+  const kk = data.kk?.trim() || '';
+  const alamat = data.alamat?.trim() || '';
+  const pekerjaan = data.pekerjaan?.trim() || 'Lainnya';
+  const koperasi = data.koperasi || 'Tidak';
+  const agniaCare = data.agniaCare || 'Tidak';
+  const status = data.status || 'Aktif';
+
+  // Resolve zawiyah_id and zawiyah_nama
+  let zawiyahNama = data.zawiyah?.trim() || 'Zawiyah Pusat Tasikmalaya';
+  let zawiyahId: string | null = null;
+  try {
+    const [zRows]: any = await pool.query(
+      'SELECT id, nama FROM zawiyah WHERE nama = ? OR id = ? LIMIT 1',
+      [zawiyahNama, zawiyahNama]
+    );
+    if (zRows && zRows.length > 0) {
+      zawiyahId = zRows[0].id;
+      zawiyahNama = zRows[0].nama;
+    }
+  } catch (err) {
+    console.warn('Zawiyah lookup warning:', err);
+  }
+
+  await pool.query(
+    `INSERT INTO jamaah (
+      id, nama, zawiyah_id, zawiyah_nama, jenis_kelamin, status_pernikahan,
+      tempat_lahir, tanggal_lahir, email, telepon, ktp, kk, alamat,
+      pekerjaan, koperasi, agnia_care, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id,
+      nama,
+      zawiyahId,
+      zawiyahNama,
+      jenisKelamin,
+      statusPernikahan,
+      tempatLahir,
+      tanggalLahir,
+      email,
+      telepon,
+      ktp,
+      kk,
+      alamat,
+      pekerjaan,
+      koperasi,
+      agniaCare,
+      status,
+    ]
+  );
+
+  // Sync zawiyah member count if linked
+  if (zawiyahId) {
+    try {
+      await pool.query(
+        `UPDATE zawiyah SET jamaah = (SELECT COUNT(*) FROM jamaah WHERE zawiyah_id = ? AND status = 'Aktif') WHERE id = ?`,
+        [zawiyahId, zawiyahId]
+      );
+    } catch (err) {
+      console.warn('Sync zawiyah count warning:', err);
+    }
+  }
+
+  // Audit Log
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      'CREATE_JAMAAH',
+      'jamaah',
+      `Menambahkan jamaah baru: ${nama} (${id}) di ${zawiyahNama}`
+    );
+  }
+
+  return {
+    id,
+    nama,
+    zawiyah: zawiyahNama,
+    jenisKelamin,
+    statusPernikahan,
+    tempatLahir,
+    tanggalLahir,
+    email: email || '',
+    telepon,
+    ktp,
+    kk,
+    alamat,
+    pekerjaan,
+    koperasi,
+    agniaCare,
+    status,
+  };
+}
+
+export async function updateJamaah(
+  id: string,
+  data: Partial<Jamaah>,
+  auditUser?: { id: number; username: string }
+): Promise<boolean> {
+  const [existing]: any = await pool.query('SELECT * FROM jamaah WHERE id = ? LIMIT 1', [id]);
+  if (!existing || existing.length === 0) {
+    throw new Error(`Jamaah dengan ID ${id} tidak ditemukan.`);
+  }
+
+  const current = existing[0];
+
+  // Resolve zawiyah if updated
+  let zawiyahId = current.zawiyah_id;
+  let zawiyahNama = current.zawiyah_nama;
+  if (data.zawiyah !== undefined) {
+    zawiyahNama = data.zawiyah.trim();
+    try {
+      const [zRows]: any = await pool.query(
+        'SELECT id, nama FROM zawiyah WHERE nama = ? OR id = ? LIMIT 1',
+        [zawiyahNama, zawiyahNama]
+      );
+      if (zRows && zRows.length > 0) {
+        zawiyahId = zRows[0].id;
+        zawiyahNama = zRows[0].nama;
+      }
+    } catch (err) {
+      console.warn('Zawiyah lookup warning on update:', err);
+    }
+  }
+
+  const nama = data.nama !== undefined ? data.nama.trim() : current.nama;
+  const jenisKelamin = data.jenisKelamin !== undefined ? data.jenisKelamin : current.jenis_kelamin;
+  const statusPernikahan = data.statusPernikahan !== undefined ? data.statusPernikahan : current.status_pernikahan;
+  const tempatLahir = data.tempatLahir !== undefined ? data.tempatLahir : current.tempat_lahir;
+  const tanggalLahir = data.tanggalLahir !== undefined ? data.tanggalLahir : current.tanggal_lahir;
+  const email = data.email !== undefined ? (data.email?.trim() || null) : current.email;
+  const telepon = data.telepon !== undefined ? data.telepon.trim() : current.telepon;
+  const ktp = data.ktp !== undefined ? data.ktp.trim() : current.ktp;
+  const kk = data.kk !== undefined ? data.kk.trim() : current.kk;
+  const alamat = data.alamat !== undefined ? data.alamat.trim() : current.alamat;
+  const pekerjaan = data.pekerjaan !== undefined ? data.pekerjaan.trim() : current.pekerjaan;
+  const koperasi = data.koperasi !== undefined ? data.koperasi : current.koperasi;
+  const agniaCare = data.agniaCare !== undefined ? data.agniaCare : current.agnia_care;
+  const status = data.status !== undefined ? data.status : current.status;
+
+  await pool.query(
+    `UPDATE jamaah SET
+      nama = ?, zawiyah_id = ?, zawiyah_nama = ?, jenis_kelamin = ?, status_pernikahan = ?,
+      tempat_lahir = ?, tanggal_lahir = ?, email = ?, telepon = ?, ktp = ?, kk = ?,
+      alamat = ?, pekerjaan = ?, koperasi = ?, agnia_care = ?, status = ?
+    WHERE id = ?`,
+    [
+      nama,
+      zawiyahId,
+      zawiyahNama,
+      jenisKelamin,
+      statusPernikahan,
+      tempatLahir,
+      tanggalLahir,
+      email,
+      telepon,
+      ktp,
+      kk,
+      alamat,
+      pekerjaan,
+      koperasi,
+      agniaCare,
+      status,
+      id,
+    ]
+  );
+
+  // Sync zawiyah member counts if zawiyah changed
+  if (current.zawiyah_id && current.zawiyah_id !== zawiyahId) {
+    try {
+      await pool.query(
+        `UPDATE zawiyah SET jamaah = (SELECT COUNT(*) FROM jamaah WHERE zawiyah_id = ? AND status = 'Aktif') WHERE id = ?`,
+        [current.zawiyah_id, current.zawiyah_id]
+      );
+    } catch (err) {
+      console.warn('Sync old zawiyah count warning:', err);
+    }
+  }
+  if (zawiyahId) {
+    try {
+      await pool.query(
+        `UPDATE zawiyah SET jamaah = (SELECT COUNT(*) FROM jamaah WHERE zawiyah_id = ? AND status = 'Aktif') WHERE id = ?`,
+        [zawiyahId, zawiyahId]
+      );
+    } catch (err) {
+      console.warn('Sync new zawiyah count warning:', err);
+    }
+  }
+
+  // Audit Log
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      'UPDATE_JAMAAH',
+      'jamaah',
+      `Memperbarui data jamaah: ${nama} (${id})`
+    );
+  }
+
+  return true;
+}
+
+export async function deleteJamaah(
+  id: string,
+  softDelete = true,
+  auditUser?: { id: number; username: string }
+): Promise<boolean> {
+  const [existing]: any = await pool.query('SELECT id, nama, zawiyah_id FROM jamaah WHERE id = ? LIMIT 1', [id]);
+  if (!existing || existing.length === 0) {
+    throw new Error(`Jamaah dengan ID ${id} tidak ditemukan.`);
+  }
+
+  const jamaah = existing[0];
+
+  if (softDelete) {
+    await pool.query("UPDATE jamaah SET status = 'Nonaktif' WHERE id = ?", [id]);
+  } else {
+    await pool.query('DELETE FROM jamaah WHERE id = ?', [id]);
+  }
+
+  // Sync zawiyah member count
+  if (jamaah.zawiyah_id) {
+    try {
+      await pool.query(
+        `UPDATE zawiyah SET jamaah = (SELECT COUNT(*) FROM jamaah WHERE zawiyah_id = ? AND status = 'Aktif') WHERE id = ?`,
+        [jamaah.zawiyah_id, jamaah.zawiyah_id]
+      );
+    } catch (err) {
+      console.warn('Sync zawiyah count warning on delete:', err);
+    }
+  }
+
+  // Audit Log
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      softDelete ? 'DEACTIVATE_JAMAAH' : 'DELETE_JAMAAH',
+      'jamaah',
+      `${softDelete ? 'Menonaktifkan' : 'Menghapus permanen'} jamaah: ${jamaah.nama} (${id})`
+    );
+  }
+
+  return true;
+}
+
+// ----------------------------------------------------
+// 9. Zawiyah Mutation Functions (CRUD for Super Admin)
+// ----------------------------------------------------
+export async function getNextZawiyahId(): Promise<string> {
+  try {
+    const [rows]: any = await pool.query(
+      "SELECT id FROM zawiyah WHERE id LIKE 'ZW-%' ORDER BY id DESC LIMIT 1"
+    );
+    if (rows && rows.length > 0) {
+      const match = rows[0].id.match(/ZW-(\d+)/);
+      if (match) {
+        const nextNum = parseInt(match[1], 10) + 1;
+        return `ZW-${String(nextNum).padStart(3, '0')}`;
+      }
+    }
+  } catch (err) {
+    console.warn('getNextZawiyahId query error:', err);
+  }
+  return `ZW-${Date.now().toString().slice(-4)}`;
+}
+
+export async function createZawiyah(
+  data: { nama: string; tipe?: string; kota: string; pengurus?: string },
+  auditUser?: { id: number; username: string }
+): Promise<Zawiyah> {
+  const id = await getNextZawiyahId();
+  const nama = data.nama.trim();
+  const tipe = data.tipe || 'Cabang';
+  const kota = data.kota.trim();
+  const pengurus = data.pengurus?.trim() || `Ust. Pengurus (${kota})`;
+
+  await pool.query(
+    'INSERT INTO zawiyah (id, nama, tipe, kota, pengurus, jamaah) VALUES (?, ?, ?, ?, ?, 0)',
+    [id, nama, tipe, kota, pengurus]
+  );
+
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      'CREATE_ZAWIYAH',
+      'zawiyah',
+      `Menambahkan zawiyah baru: ${nama} (${id}) di kota ${kota}`
+    );
+  }
+
+  return {
+    id,
+    nama,
+    tipe,
+    kota,
+    pengurus,
+    jamaah: 0,
+    status: 'Aktif',
+  };
+}
+
+export async function updateZawiyah(
+  id: string,
+  data: Partial<Zawiyah>,
+  auditUser?: { id: number; username: string }
+): Promise<boolean> {
+  const [existing]: any = await pool.query('SELECT * FROM zawiyah WHERE id = ? LIMIT 1', [id]);
+  if (!existing || existing.length === 0) {
+    throw new Error(`Zawiyah dengan ID ${id} tidak ditemukan.`);
+  }
+
+  const current = existing[0];
+  const nama = data.nama !== undefined ? data.nama.trim() : current.nama;
+  const tipe = data.tipe !== undefined ? data.tipe.trim() : current.tipe;
+  const kota = data.kota !== undefined ? data.kota.trim() : current.kota;
+  const pengurus = data.pengurus !== undefined ? data.pengurus.trim() : current.pengurus;
+
+  await pool.query(
+    'UPDATE zawiyah SET nama = ?, tipe = ?, kota = ?, pengurus = ? WHERE id = ?',
+    [nama, tipe, kota, pengurus, id]
+  );
+
+  // If zawiyah name changed, keep zawiyah_nama in table jamaah in sync!
+  if (nama !== current.nama) {
+    try {
+      await pool.query('UPDATE jamaah SET zawiyah_nama = ? WHERE zawiyah_id = ?', [nama, id]);
+    } catch (err) {
+      console.warn('Sync jamaah zawiyah_nama warning:', err);
+    }
+  }
+
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      'UPDATE_ZAWIYAH',
+      'zawiyah',
+      `Memperbarui data zawiyah: ${nama} (${id})`
+    );
+  }
+
+  return true;
+}
+
+export async function deleteZawiyah(
+  id: string,
+  auditUser?: { id: number; username: string }
+): Promise<boolean> {
+  const [existing]: any = await pool.query('SELECT id, nama FROM zawiyah WHERE id = ? LIMIT 1', [id]);
+  if (!existing || existing.length === 0) {
+    throw new Error(`Zawiyah dengan ID ${id} tidak ditemukan.`);
+  }
+
+  const zawiyah = existing[0];
+
+  // Detach jamaah foreign keys first to prevent FK constraint violation
+  await pool.query('UPDATE jamaah SET zawiyah_id = NULL WHERE zawiyah_id = ?', [id]);
+  await pool.query('DELETE FROM zawiyah WHERE id = ?', [id]);
+
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      'DELETE_ZAWIYAH',
+      'zawiyah',
+      `Menghapus zawiyah: ${zawiyah.nama} (${id})`
+    );
+  }
+
+  return true;
+}
+
+
