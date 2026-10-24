@@ -223,6 +223,253 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
     };
   }, []);
 
+  // Memoized Indonesian Province Paths (avoids recreating 38 complex vector nodes on every frame of dragging)
+  const provinceElements = useMemo(() => {
+    return INDONESIA_PROVINCES.map((prov) => {
+      const isHighlighted = highlightedProvinces.has(prov.id);
+      const isHovered = hoveredProvince === prov.id;
+
+      const fill = isDark
+        ? isHighlighted
+          ? '#3A5236'
+          : isHovered
+          ? '#2B3D28'
+          : '#1E2C1C'
+        : isHighlighted
+        ? '#DCE8D8'
+        : isHovered
+        ? '#E8E2D5'
+        : '#EAE4D9';
+
+      const stroke = isDark
+        ? isHighlighted
+          ? '#5A7A56'
+          : '#2A3928'
+        : isHighlighted
+        ? '#ADC3A8'
+        : '#C8C2B3';
+
+      return (
+        <path
+          key={prov.id}
+          d={prov.path}
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={isHighlighted ? 0.7 : 0.35}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          className="transition-colors duration-200"
+          filter={isHighlighted ? 'url(#activeProvinceShadow)' : undefined}
+          onMouseEnter={() => setHoveredProvince(prov.id)}
+          onMouseLeave={() => setHoveredProvince(null)}
+        />
+      );
+    });
+  }, [highlightedProvinces, hoveredProvince, isDark]);
+
+  // Memoized corridor flow arcs with GPU-accelerated CSS flow animation
+  const corridorArcElements = useMemo(() => {
+    return visibleCorridors.map((arc) => (
+      <path
+        key={arc.id}
+        d={arc.d}
+        fill="none"
+        stroke={isDark ? '#557851' : '#9EB299'}
+        strokeWidth={isDetailZoom ? '0.6' : '0.8'}
+        strokeDasharray="4,3"
+        strokeLinecap="round"
+        opacity={isDetailZoom ? 0.35 : 0.65}
+        className="corridor-flow"
+      />
+    ));
+  }, [visibleCorridors, isDark, isDetailZoom]);
+
+  // Memoized Cluster Bubbles
+  const clusterBubbleElements = useMemo(() => {
+    return CLUSTER_HUBS.map((hub) => {
+      const isHovered = hoveredHub?.id === hub.id;
+      const isPriangan = hub.id === 'hub-priangan';
+
+      return (
+        <g
+          key={hub.id}
+          transform={`translate(${hub.x}, ${hub.y})`}
+          className="cursor-pointer group"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClusterHubClick(hub);
+          }}
+          onMouseEnter={() => {
+            setHoveredHub(hub);
+            if (onHoverCluster) onHoverCluster(hub.nama);
+          }}
+          onMouseLeave={() => {
+            setHoveredHub(null);
+            if (onHoverCluster) onHoverCluster(null);
+          }}
+        >
+          {/* Subtle Expanding Ring for Priangan Timur (Pusat Tarekat) */}
+          {isPriangan && (
+            <circle
+              r={14}
+              fill="none"
+              stroke={isDark ? '#85E7B7' : '#3B4D36'}
+              strokeWidth="0.8"
+              opacity="0.5"
+            >
+              <animate attributeName="r" from={12} to="26" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" from="0.6" to="0" dur="2.4s" repeatCount="indefinite" />
+            </circle>
+          )}
+
+          {/* Cluster Badge Capsule */}
+          <g filter="url(#hubBadgeShadow)">
+            <rect
+              x={-28}
+              y={-12}
+              width={56}
+              height={24}
+              rx={12}
+              className="transition-all duration-200"
+              fill={
+                isDark
+                  ? isHovered
+                    ? '#2A3D28'
+                    : '#1C291B'
+                  : isHovered
+                  ? '#1F2B1D'
+                  : '#243324'
+              }
+              stroke={
+                isDark
+                  ? isHovered
+                    ? '#85E7B7'
+                    : '#4A6846'
+                  : isHovered
+                  ? '#3B4D36'
+                  : '#FFFFFF'
+              }
+              strokeWidth={1}
+            />
+
+            {/* Number Badge Circle */}
+            <circle
+              cx={-17}
+              cy={0}
+              r={8}
+              fill={isDark ? '#85E7B7' : '#F4EFE6'}
+            />
+
+            {/* Branch Count Number */}
+            <text
+              x={-17}
+              y={0.5}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-[6.5px] font-black select-none pointer-events-none"
+              fill={isDark ? '#142013' : '#1F2B1D'}
+            >
+              {hub.totalCabang}
+            </text>
+
+            {/* "Cabang" label */}
+            <text
+              x={6}
+              y={-2}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-[5.2px] font-semibold tracking-wide uppercase select-none pointer-events-none"
+              fill="#FFFFFF"
+            >
+              Cabang
+            </text>
+
+            {/* Jamaah count micro subtext */}
+            <text
+              x={6}
+              y={5}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-[4px] font-normal select-none pointer-events-none opacity-80"
+              fill="#CBD7C7"
+            >
+              {hub.totalJamaah.toLocaleString('id-ID')} jmh
+            </text>
+          </g>
+
+          {/* Region Name Label underneath */}
+          <text
+            x={0}
+            y={19}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="text-[5.5px] font-bold tracking-wider uppercase select-none pointer-events-none"
+            fill={isDark ? '#85E7B7' : '#1F2B1D'}
+            stroke={isDark ? '#152014' : '#FBF9F5'}
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            paintOrder="stroke fill"
+          >
+            {hub.singkatan}
+          </text>
+        </g>
+      );
+    });
+  }, [hoveredHub, isDark, onHoverCluster]);
+
+  // Memoized Island Watermarks
+  const islandWatermarkElements = useMemo(() => {
+    return [
+      { label: 'SUMATERA', x: 100, y: 165 },
+      { label: 'KALIMANTAN', x: 340, y: 155 },
+      { label: 'SULAWESI', x: 460, y: 155 },
+      { label: 'JAWA', x: 260, y: 274 },
+      { label: 'PAPUA', x: 680, y: 140 },
+    ].map((island) => (
+      <text
+        key={island.label}
+        x={island.x}
+        y={island.y}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        className="text-[5.5px] font-semibold tracking-[0.3em] uppercase pointer-events-none select-none"
+        fill={isDark ? '#506B4D' : '#B5AC9A'}
+        opacity={0.3}
+      >
+        {island.label}
+      </text>
+    ));
+  }, [isDark]);
+
+  // Animation frame ref for 60/120Hz smooth pan & zoom updates
+  const rafIdRef = useRef<number | null>(null);
+  const pendingPanRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const pendingZoomRef = useRef<number | null>(null);
+
+  const scheduleTransform = useCallback((newPan: { x: number; y: number }, newZoom?: number) => {
+    pendingPanRef.current = newPan;
+    if (newZoom !== undefined) pendingZoomRef.current = newZoom;
+
+    if (rafIdRef.current === null) {
+      rafIdRef.current = requestAnimationFrame(() => {
+        setPan(pendingPanRef.current);
+        if (pendingZoomRef.current !== null) {
+          setZoom(pendingZoomRef.current);
+          pendingZoomRef.current = null;
+        }
+        rafIdRef.current = null;
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
+
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
@@ -235,7 +482,7 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
     if (!isDragging) return;
     const dx = e.clientX - dragStartRef.current.x;
     const dy = e.clientY - dragStartRef.current.y;
-    setPan({
+    scheduleTransform({
       x: panStartRef.current.x + dx,
       y: panStartRef.current.y + dy,
     });
@@ -243,6 +490,11 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+      setPan(pendingPanRef.current);
+    }
   };
 
   // Touch handlers for mobile pan & pinch-zoom (with touch-action: none for silky smoothness)
@@ -264,7 +516,7 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
     if (e.touches.length === 1 && isDragging) {
       const dx = e.touches[0].clientX - dragStartRef.current.x;
       const dy = e.touches[0].clientY - dragStartRef.current.y;
-      setPan({
+      scheduleTransform({
         x: panStartRef.current.x + dx,
         y: panStartRef.current.y + dy,
       });
@@ -274,13 +526,23 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
       const distance = Math.hypot(dx, dy);
       const scale = distance / touchDistanceRef.current;
       touchDistanceRef.current = distance;
-      setZoom((prev) => Math.max(0.9, Math.min(12.0, parseFloat((prev * scale).toFixed(2)))));
+      const newZoom = Math.max(0.9, Math.min(13.0, parseFloat((zoom * scale).toFixed(2))));
+      scheduleTransform(pan, newZoom);
     }
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
     touchDistanceRef.current = null;
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+      setPan(pendingPanRef.current);
+      if (pendingZoomRef.current !== null) {
+        setZoom(pendingZoomRef.current);
+        pendingZoomRef.current = null;
+      }
+    }
   };
 
   return (
@@ -397,21 +659,22 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
 
       {/* SVG Canvas with Fluid GPU Pan & Zoom */}
       <div
-        className="w-full h-full flex items-center justify-center origin-center transition-transform duration-150 ease-out p-1 sm:p-4"
+        className="w-full h-full flex items-center justify-center origin-center p-1 sm:p-4"
         style={{
           transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
           transformOrigin: '50% 50%',
+          transition: isDragging ? 'none' : 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)',
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
         }}
       >
         <svg
           viewBox={MAP_DIMENSIONS.viewBox}
           className="w-full h-full max-h-[96%]"
-          style={{ overflow: 'visible' }}
+          style={{ overflow: 'visible', shapeRendering: 'geometricPrecision' }}
         >
           <defs>
-            <filter id="softProvinceShadow" x="-5%" y="-5%" width="110%" height="110%">
-              <feDropShadow dx="0" dy="0.5" stdDeviation="0.8" floodColor="#000000" floodOpacity={isDark ? 0.25 : 0.05} />
-            </filter>
             <filter id="activeProvinceShadow" x="-10%" y="-10%" width="120%" height="120%">
               <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor={isDark ? '#000000' : '#243324'} floodOpacity={isDark ? 0.45 : 0.16} />
             </filter>
@@ -427,205 +690,19 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
             </filter>
           </defs>
 
-          {/* 1. Indonesian Province Paths */}
+          {/* 1. Indonesian Province Paths (Memoized, hardware-accelerated without slow filters) */}
           <g id="indonesia-provinces">
-            {INDONESIA_PROVINCES.map((prov) => {
-              const isHighlighted = highlightedProvinces.has(prov.id);
-              const isHovered = hoveredProvince === prov.id;
-
-              const fill = isDark
-                ? isHighlighted
-                  ? '#3A5236'
-                  : isHovered
-                  ? '#2B3D28'
-                  : '#1E2C1C'
-                : isHighlighted
-                ? '#DCE8D8'
-                : isHovered
-                ? '#E8E2D5'
-                : '#EAE4D9';
-
-              const stroke = isDark
-                ? isHighlighted
-                  ? '#5A7A56'
-                  : '#2A3928'
-                : isHighlighted
-                ? '#ADC3A8'
-                : '#C8C2B3';
-
-              return (
-                <path
-                  key={prov.id}
-                  d={prov.path}
-                  fill={fill}
-                  stroke={stroke}
-                  strokeWidth={isHighlighted ? 0.7 : 0.35}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  className="transition-colors duration-200"
-                  filter={isHighlighted ? 'url(#activeProvinceShadow)' : 'url(#softProvinceShadow)'}
-                  onMouseEnter={() => setHoveredProvince(prov.id)}
-                  onMouseLeave={() => setHoveredProvince(null)}
-                />
-              );
-            })}
+            {provinceElements}
           </g>
 
-          {/* 2. Corridor Arcs (Flow from Pusat Tasikmalaya to regional nodes) */}
+          {/* 2. Corridor Arcs (Flow from Pusat Tasikmalaya to regional nodes - GPU CSS flow) */}
           <g id="corridor-arcs" className="pointer-events-none">
-            {visibleCorridors.map((arc) => (
-              <path
-                key={arc.id}
-                d={arc.d}
-                fill="none"
-                stroke={isDark ? '#557851' : '#9EB299'}
-                strokeWidth={isDetailZoom ? '0.6' : '0.8'}
-                strokeDasharray="4,3"
-                strokeLinecap="round"
-                opacity={isDetailZoom ? 0.35 : 0.65}
-              >
-                <animate
-                  attributeName="stroke-dashoffset"
-                  from="0"
-                  to="-14"
-                  dur="3s"
-                  repeatCount="indefinite"
-                />
-              </path>
-            ))}
+            {corridorArcElements}
           </g>
 
-          {/* 3. CLUSTER BUBBLES (Rendered during Overview Mode when zoomed out) */}
+          {/* 3. CLUSTER BUBBLES (Rendered during Overview Mode when zoomed out - Memoized) */}
           <g id="cluster-bubbles" className={`transition-opacity duration-300 ${isDetailZoom ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            {CLUSTER_HUBS.map((hub) => {
-              const isHovered = hoveredHub?.id === hub.id;
-              const isPriangan = hub.id === 'hub-priangan';
-
-              return (
-                <g
-                  key={hub.id}
-                  transform={`translate(${hub.x}, ${hub.y})`}
-                  className="cursor-pointer group"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleClusterHubClick(hub);
-                  }}
-                  onMouseEnter={() => {
-                    setHoveredHub(hub);
-                    if (onHoverCluster) onHoverCluster(hub.nama);
-                  }}
-                  onMouseLeave={() => {
-                    setHoveredHub(null);
-                    if (onHoverCluster) onHoverCluster(null);
-                  }}
-                >
-                  {/* Subtle Expanding Ring for Priangan Timur (Pusat Tarekat) */}
-                  {isPriangan && (
-                    <circle
-                      r={14}
-                      fill="none"
-                      stroke={isDark ? '#85E7B7' : '#3B4D36'}
-                      strokeWidth="0.8"
-                      opacity="0.5"
-                    >
-                      <animate attributeName="r" from={12} to="26" dur="2.4s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" from="0.6" to="0" dur="2.4s" repeatCount="indefinite" />
-                    </circle>
-                  )}
-
-                  {/* Cluster Badge Capsule */}
-                  <g filter="url(#hubBadgeShadow)">
-                    <rect
-                      x={-28}
-                      y={-12}
-                      width={56}
-                      height={24}
-                      rx={12}
-                      className="transition-all duration-200"
-                      fill={
-                        isDark
-                          ? isHovered
-                            ? '#2A3D28'
-                            : '#1C291B'
-                          : isHovered
-                          ? '#1F2B1D'
-                          : '#243324'
-                      }
-                      stroke={
-                        isDark
-                          ? isHovered
-                            ? '#85E7B7'
-                            : '#4A6846'
-                          : isHovered
-                          ? '#3B4D36'
-                          : '#FFFFFF'
-                      }
-                      strokeWidth={1}
-                    />
-
-                    {/* Number Badge Circle */}
-                    <circle
-                      cx={-17}
-                      cy={0}
-                      r={8}
-                      fill={isDark ? '#85E7B7' : '#F4EFE6'}
-                    />
-
-                    {/* Branch Count Number */}
-                    <text
-                      x={-17}
-                      y={0.5}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="text-[6.5px] font-black select-none pointer-events-none"
-                      fill={isDark ? '#142013' : '#1F2B1D'}
-                    >
-                      {hub.totalCabang}
-                    </text>
-
-                    {/* "Cabang" label */}
-                    <text
-                      x={6}
-                      y={-2}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="text-[5.2px] font-semibold tracking-wide uppercase select-none pointer-events-none"
-                      fill="#FFFFFF"
-                    >
-                      Cabang
-                    </text>
-
-                    {/* Jamaah count micro subtext */}
-                    <text
-                      x={6}
-                      y={5}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="text-[4px] font-normal select-none pointer-events-none opacity-80"
-                      fill="#CBD7C7"
-                    >
-                      {hub.totalJamaah.toLocaleString('id-ID')} jmh
-                    </text>
-                  </g>
-
-                  {/* Region Name Label underneath */}
-                  <text
-                    x={0}
-                    y={19}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    className="text-[5.5px] font-bold tracking-wider uppercase select-none pointer-events-none"
-                    fill={isDark ? '#85E7B7' : '#1F2B1D'}
-                    stroke={isDark ? '#152014' : '#FBF9F5'}
-                    strokeWidth="1.5"
-                    strokeLinejoin="round"
-                    paintOrder="stroke fill"
-                  >
-                    {hub.singkatan}
-                  </text>
-                </g>
-              );
-            })}
+            {clusterBubbleElements}
           </g>
 
           {/* 4. INDIVIDUAL ZAWIYAH BRANCH PINS */}
@@ -794,29 +871,10 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
             })}
           </g>
 
-          {/* 5. Major Island Region Watermarks (Faded out when zoomed in) */}
+          {/* 5. Major Island Region Watermarks (Faded out when zoomed in - Memoized) */}
           {zoom < 2.2 && (
             <g id="island-watermarks" className="pointer-events-none select-none transition-opacity duration-300">
-              {[
-                { label: 'SUMATERA', x: 100, y: 165 },
-                { label: 'KALIMANTAN', x: 340, y: 155 },
-                { label: 'SULAWESI', x: 460, y: 155 },
-                { label: 'JAWA', x: 260, y: 274 },
-                { label: 'PAPUA', x: 680, y: 140 },
-              ].map((island) => (
-                <text
-                  key={island.label}
-                  x={island.x}
-                  y={island.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="text-[5.5px] font-semibold tracking-[0.3em] uppercase"
-                  fill={isDark ? '#506B4D' : '#B5AC9A'}
-                  opacity={0.3}
-                >
-                  {island.label}
-                </text>
-              ))}
+              {islandWatermarkElements}
             </g>
           )}
         </svg>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useMemo } from 'react';
-import { motion, useScroll, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, BarChart3, Compass, Users } from 'lucide-react';
 import { AnimatedNumber } from './AnimatedNumber';
 import {
@@ -17,11 +17,6 @@ export const BoroughCorridorSection: React.FC = () => {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const containerRef = useRef<HTMLDivElement>(null);
   const cardContainerRef = useRef<HTMLDivElement>(null);
-
-  useScroll({
-    target: containerRef,
-    offset: ['start end', 'end start'],
-  });
 
   const activeClusterInList = REGIONAL_CLUSTERS[activeListIndex] || REGIONAL_CLUSTERS[0];
 

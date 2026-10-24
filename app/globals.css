@@ -78,3 +78,17 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* GPU-accelerated corridor dash flow animation for interactive map */
+@keyframes corridorFlow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+.corridor-flow {
+  animation: corridorFlow 3s linear infinite;
+  will-change: stroke-dashoffset;
+}
