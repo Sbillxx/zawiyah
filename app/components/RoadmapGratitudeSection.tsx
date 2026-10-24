@@ -71,8 +71,8 @@ export const RoadmapGratitudeSection: React.FC = () => {
 
         {/* Footer */}
         <footer className="pt-8 border-t border-[#243324]/10 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#657351] dark:text-[#A3B59E] font-light">
-          <p>© 2026 The Urban Hive Project. Registered UK Charity {REPORT_METADATA.charityNumber}.</p>
-          <p>Crafted for London’s living urban ecosystem.</p>
+          <p>© 2026 SAJADA — Sistem Monitoring Jamaah Zawiyah Idrisiyyah.</p>
+          <p>Merajut ukhuwah & khidmah jamaah nusantara dalam satu saf ketakwaan.</p>
         </footer>
       </div>
     </section>
