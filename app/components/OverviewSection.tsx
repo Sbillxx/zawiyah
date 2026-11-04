@@ -68,7 +68,7 @@ export const OverviewSection: React.FC = () => {
               </div>
               <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Total Jamaah Terdata</p>
               <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
-                Data tunggal terverifikasi Single Source of Truth (SSOT)
+                Data terpusat dan terverifikasi seluruh nusantara
               </p>
             </div>
 

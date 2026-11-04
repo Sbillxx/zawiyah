@@ -1,4 +1,5 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { AdminBottomNav } from '@/app/components/AdminBottomNav';
 
 export const metadata: Metadata = {
   title: 'Portal Admin — Zawiyah Idrisiyyah',
@@ -6,5 +7,10 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      {children}
+      <AdminBottomNav />
+    </>
+  );
 }

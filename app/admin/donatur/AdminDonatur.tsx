@@ -72,35 +72,37 @@ export default function AdminDonatur({ donaturList }: Props) {
     <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#131D12] font-sans">
       {/* Header bar */}
       <header className="sticky top-0 z-40 border-b border-[#243324]/10 dark:border-white/10 bg-[#FBF9F5]/90 dark:bg-[#131D12]/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               href="/admin"
-              className="flex items-center gap-1.5 text-sm text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#243324]/5 dark:bg-white/5 hover:bg-[#243324]/10 dark:hover:bg-white/10 text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors shrink-0"
+              title="Kembali ke Dashboard"
             >
-              <ArrowLeft className="w-4 h-4" /> Dashboard
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Dashboard</span>
             </Link>
-            <span className="text-[#243324]/20 dark:text-white/20">/</span>
-            <div className="flex items-center gap-2">
-              <h1 className="font-display text-lg text-[#1F2B1D] dark:text-[#F4EFE6] font-light">
-                Data Donatur Agnia Care
+            <span className="hidden sm:inline text-[#243324]/20 dark:text-white/20">/</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <h1 className="font-display text-base sm:text-lg text-[#1F2B1D] dark:text-[#F4EFE6] font-light truncate">
+                Donatur Agnia Care
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 text-[11px] font-semibold">
+              <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300 text-[11px] font-semibold shrink-0">
                 Kanwakil Jawa Barat
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-[#657351] dark:text-[#A3B59E]">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-[#657351] dark:text-[#A3B59E] shrink-0">
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span className="font-display text-base font-light text-[#1F2B1D] dark:text-[#F4EFE6]">
+            <span className="font-display text-sm sm:text-base font-medium text-[#1F2B1D] dark:text-[#F4EFE6]">
               {filtered.length}
             </span>
-            <span>/ {donaturList.length} donatur</span>
+            <span className="hidden sm:inline">/ {donaturList.length} donatur</span>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12 space-y-6">
         {/* KPI Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="glass-panel rounded-2xl p-4 flex items-center gap-3">
@@ -111,7 +113,7 @@ export default function AdminDonatur({ donaturList }: Props) {
               <p className="font-display text-2xl text-[#1F2B1D] dark:text-[#F4EFE6] leading-none">
                 {donaturList.length}
               </p>
-              <p className="text-xs text-[#657351] dark:text-[#A3B59E] mt-0.5">Total Donatur MySQL</p>
+              <p className="text-xs text-[#657351] dark:text-[#A3B59E] mt-0.5">Total Donatur</p>
             </div>
           </div>
 

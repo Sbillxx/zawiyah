@@ -17,7 +17,7 @@ export default async function DonaturPage(props: Props) {
   if (!conn.isConnected && !isOfflineRequested) {
     return (
       <DatabaseErrorView
-        error={conn.error || 'Tidak dapat terhubung ke MySQL 127.0.0.1:3306 (dashboard_zawiyah)'}
+        error={conn.error || 'Tidak dapat terhubung ke server basis data'}
         returnUrl="/admin/donatur"
         allowOfflineBypass={true}
       />

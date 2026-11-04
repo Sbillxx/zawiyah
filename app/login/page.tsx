@@ -237,13 +237,13 @@ export default function LoginPage() {
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-[11px] font-semibold text-amber-700 dark:text-amber-400">
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               <Database className="w-3.5 h-3.5" />
-              <span>MySQL: Offline (Mode Cadangan)</span>
+              <span>Sistem: Standby</span>
             </div>
           ) : (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6f4ea] dark:bg-[#1F3D2A] border border-[#006948]/20 text-[11px] font-semibold text-[#006948] dark:text-[#68DBA9]">
               <span className="w-2 h-2 rounded-full bg-[#006948] dark:bg-[#68DBA9] animate-pulse" />
               <Database className="w-3.5 h-3.5" />
-              <span>MySQL: dashboard_zawiyah</span>
+              <span>Sistem: Aktif</span>
             </div>
           )}
 
@@ -283,7 +283,7 @@ export default function LoginPage() {
                   Portal Kejamaahan
                 </h1>
                 <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] mt-1.5 font-normal">
-                  Autentikasi langsung dengan tabel <code className="px-1.5 py-0.5 rounded bg-[#243324]/8 dark:bg-white/10 font-mono text-[11px] font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">users</code> di MySQL
+                  Masuk ke sistem administrasi dan monitoring terpadu
                 </p>
               </div>
             </div>
@@ -294,10 +294,10 @@ export default function LoginPage() {
                 <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
                 <div className="space-y-0.5">
                   <p className="font-semibold text-amber-950 dark:text-amber-100">
-                    Server MySQL Sedang Offline (Port 3306)
+                    Server Sedang Standby
                   </p>
                   <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80 leading-relaxed">
-                    Nyalakan MySQL di XAMPP untuk autentikasi live. Anda tetap dapat masuk menggunakan tombol pratinjau di bawah.
+                    Layanan data langsung belum tersambung. Anda tetap dapat masuk menggunakan pilihan akun di bawah.
                   </p>
                 </div>
               </div>
@@ -339,7 +339,7 @@ export default function LoginPage() {
                   htmlFor="login-username"
                   className="block text-[11px] font-semibold text-[#4A5D44] dark:text-[#CBD7C7] uppercase tracking-wider"
                 >
-                  Username / ID Akun MySQL
+                  Username / ID Akun
                 </label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
@@ -439,7 +439,7 @@ export default function LoginPage() {
                         d="M4 12a8 8 0 018-8v8H4z"
                       />
                     </svg>
-                    <span>Memverifikasi Password Hash di MySQL...</span>
+                    <span>Memverifikasi Kredensial...</span>
                   </>
                 ) : successInfo ? (
                   <>
@@ -460,7 +460,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-[#657351] dark:text-[#A3B59E] uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E]" />
-                  Pilih Akun dari Database ({accountsToDisplay.length})
+                  Pilih Akun Cepat ({accountsToDisplay.length})
                 </span>
                 <span className="text-[10px] text-[#A3B59E] dark:text-[#657351] italic">
                   Klik untuk autofill
@@ -513,7 +513,7 @@ export default function LoginPage() {
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
             <p className="text-[11px] text-[#A3B59E] dark:text-[#657351]">
-              © 2026 Yayasan Idrisiyyah · Database MySQL Terkoneksi (dashboard_zawiyah)
+              © 2026 Yayasan Idrisiyyah · Hak Cipta Dilindungi
             </p>
           </div>
         </div>
@@ -521,7 +521,7 @@ export default function LoginPage() {
 
       {/* Footer minimal info */}
       <footer className="relative z-20 w-full py-4 text-center text-[11px] text-[#657351] dark:text-[#A3B59E]/70">
-        Direktori Data Master & Cabang Zawiyah Seluruh Indonesia · Terhubung ke phpMyAdmin Localhost
+        Direktori Data Master & Cabang Zawiyah Seluruh Indonesia
       </footer>
     </div>
   );

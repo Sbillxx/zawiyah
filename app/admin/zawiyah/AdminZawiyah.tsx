@@ -220,21 +220,23 @@ export default function AdminZawiyah({ zawiyahList: initialList }: Props) {
 
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-[#243324]/10 dark:border-white/10 bg-[#FBF9F5]/90 dark:bg-[#131D12]/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               href="/admin"
-              className="flex items-center gap-1.5 text-sm text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#243324]/5 dark:bg-white/5 hover:bg-[#243324]/10 dark:hover:bg-white/10 text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors shrink-0"
+              title="Kembali ke Dashboard"
             >
-              <ArrowLeft className="w-4 h-4" /> Dashboard
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Dashboard</span>
             </Link>
-            <span className="text-[#243324]/20 dark:text-white/20">/</span>
-            <h1 className="font-display text-lg text-[#1F2B1D] dark:text-[#F4EFE6] font-light">
+            <span className="hidden sm:inline text-[#243324]/20 dark:text-white/20">/</span>
+            <h1 className="font-display text-base sm:text-lg text-[#1F2B1D] dark:text-[#F4EFE6] font-light truncate">
               Manajemen Cabang Zawiyah
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="hidden sm:flex items-center gap-2 text-xs text-[#657351] dark:text-[#A3B59E] px-3 py-1.5 rounded-xl bg-[#243324]/5 dark:bg-white/5">
               <Building2 className="w-3.5 h-3.5" />
               <span className="font-display text-base font-light text-[#1F2B1D] dark:text-[#F4EFE6]">
@@ -245,17 +247,18 @@ export default function AdminZawiyah({ zawiyahList: initialList }: Props) {
 
             <button
               onClick={handleOpenAdd}
-              className="flex items-center gap-2 px-4 py-2 bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4" />
-              <span>Tambah Zawiyah</span>
+              <span className="hidden xs:inline">Tambah Zawiyah</span>
+              <span className="xs:hidden">Tambah</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+{/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12 space-y-6">
         <div className="flex flex-wrap gap-4">
           <div className="glass-panel rounded-xl px-4 py-2.5 flex items-center gap-2">
             <Building2 className="w-4 h-4 text-[#4A5D44] dark:text-[#A3B59E]" />
