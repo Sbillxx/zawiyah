@@ -1,5 +1,6 @@
 import AdminDashboard from './AdminDashboard';
-import { getDashboardStats, getAllZawiyah, checkDbConnection } from '@/lib/data/ssot';
+import { getDashboardStats, getAllZawiyah, checkDbConnection, type DashboardStats, type Zawiyah } from '@/lib/data/ssot';
+import { getSessionUser } from '@/lib/auth';
 import DatabaseErrorView from '../components/DatabaseErrorView';
 
 export const dynamic = 'force-dynamic';
@@ -19,23 +20,42 @@ export default async function AdminPage(props: Props) {
   if (!conn.isConnected && !isOfflineRequested) {
     return (
       <DatabaseErrorView
-        error={conn.error || 'Tidak dapat terhubung ke server basis data'}
+        error={conn.error || 'Tidak dapat terhubung ke server basis data MySQL (dashboard_zawiyah)'}
         returnUrl="/admin"
         allowOfflineBypass={true}
       />
     );
   }
 
-  // 2. Load data (safely using fallback snapshot if offline)
+  // 2. Check current session
+  const currentUser = await getSessionUser();
+  const targetZawiyahId =
+    currentUser?.role === 'ADMIN_ZAWIYAH' && currentUser.zawiyah_id
+      ? currentUser.zawiyah_id
+      : undefined;
+
+  // 3. Load data with fail-safe resilience
   const isFallbackMode = !conn.isConnected || isOfflineRequested;
-  const stats = await getDashboardStats(isFallbackMode);
-  const zawiyahList = await getAllZawiyah(isFallbackMode);
+  let stats: DashboardStats;
+  let zawiyahList: Zawiyah[] = [];
+  let isOffline = isFallbackMode;
+
+  try {
+    stats = await getDashboardStats(isFallbackMode, targetZawiyahId);
+    zawiyahList = await getAllZawiyah(isFallbackMode);
+  } catch (err: any) {
+    console.warn('MySQL load error in AdminPage, safely using fallback snapshot:', err?.message);
+    stats = await getDashboardStats(true, targetZawiyahId);
+    zawiyahList = await getAllZawiyah(true);
+    isOffline = true;
+  }
 
   return (
     <AdminDashboard
       stats={stats}
       zawiyahList={zawiyahList}
-      isOfflineMode={isFallbackMode}
+      currentUser={currentUser}
+      isOfflineMode={isOffline}
     />
   );
 }

@@ -40,7 +40,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 }
 
 /**
- * Verify if the caller is authorized as Super Admin (or has valid admin role)
+ * Verify if the caller is authorized as Super Admin
  */
 export async function verifySuperAdmin(): Promise<{
   authorized: boolean;
@@ -49,7 +49,6 @@ export async function verifySuperAdmin(): Promise<{
 }> {
   const user = await getSessionUser();
 
-  // If no session exists in development, fallback to default superadmin for smooth local dev
   if (!user) {
     if (process.env.NODE_ENV !== 'production') {
       return {
@@ -81,4 +80,58 @@ export async function verifySuperAdmin(): Promise<{
   }
 
   return { authorized: true, user };
+}
+
+/**
+ * Verify if the caller is authorized as Super Admin or Admin Zawiyah (for managing jamaah)
+ */
+export async function verifyAdminAuth(): Promise<{
+  authorized: boolean;
+  user: SessionUser | null;
+  error?: string;
+  isSuperAdmin: boolean;
+  isAdminZawiyah: boolean;
+}> {
+  const user = await getSessionUser();
+
+  if (!user) {
+    if (process.env.NODE_ENV !== 'production') {
+      return {
+        authorized: true,
+        user: {
+          id: 1,
+          username: 'superadmin',
+          nama_lengkap: 'Super Admin Yayasan (Dev)',
+          email: 'admin@idrisiyyah.org',
+          role: 'SUPER_ADMIN',
+          zawiyah_id: null,
+          divisi_id: null,
+        },
+        isSuperAdmin: true,
+        isAdminZawiyah: false,
+      };
+    }
+    return {
+      authorized: false,
+      user: null,
+      error: 'Anda belum login atau sesi telah kedaluwarsa.',
+      isSuperAdmin: false,
+      isAdminZawiyah: false,
+    };
+  }
+
+  const isSuperAdmin = user.role === 'SUPER_ADMIN';
+  const isAdminZawiyah = user.role === 'ADMIN_ZAWIYAH';
+
+  if (!isSuperAdmin && !isAdminZawiyah) {
+    return {
+      authorized: false,
+      user,
+      error: 'Peran akun Anda tidak memiliki hak akses untuk tindakan ini.',
+      isSuperAdmin: false,
+      isAdminZawiyah: false,
+    };
+  }
+
+  return { authorized: true, user, isSuperAdmin, isAdminZawiyah };
 }

@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import mysql from 'mysql2/promise';
 
 export interface Jamaah {
@@ -17,6 +18,9 @@ export interface Jamaah {
   koperasi: string;
   agniaCare: string;
   status: string;
+  is_ketua_zawiyah?: boolean;
+  ketua_di_zawiyah_id?: string | null;
+  ketua_di_zawiyah_nama?: string | null;
 }
 
 export interface Zawiyah {
@@ -25,6 +29,9 @@ export interface Zawiyah {
   tipe: string;
   kota: string;
   pengurus: string;
+  ketua_zawiyah?: string;
+  ketua_jamaah_id?: string | null;
+  no_telp_ketua?: string;
   jamaah: number;
   status?: string;
 }
@@ -64,6 +71,8 @@ export interface DashboardStats {
   pctPerempuan: number;
   pctAgniaCare: string;
   pctKoperasi: string;
+  currentZawiyah?: Zawiyah | null;
+  isScopedZawiyah?: boolean;
 }
 
 export interface UserAccount {
@@ -73,7 +82,9 @@ export interface UserAccount {
   email: string;
   role: 'SUPER_ADMIN' | 'ADMIN_EKSEKUTIF' | 'ADMIN_ZAWIYAH' | 'ADMIN_DIVISI' | string;
   zawiyah_id: string | null;
+  jamaah_id?: string | null;
   divisi_id: string | null;
+  is_password_default?: number;
   status: string;
   created_at?: string;
 }
@@ -114,6 +125,8 @@ export const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   connectTimeout: 8000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
   ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
 });
 
@@ -138,16 +151,17 @@ export async function checkDbConnection(): Promise<{ isConnected: boolean; error
 export const FALLBACK_USERS: UserAccount[] = [
   { id: 1, username: 'superadmin', nama_lengkap: 'Super Admin Yayasan', email: 'admin@idrisiyyah.org', role: 'SUPER_ADMIN', zawiyah_id: null, divisi_id: null, status: 'Aktif' },
   { id: 2, username: 'eksekutif', nama_lengkap: 'BPH / Pimpinan Yayasan', email: 'pimpinan@idrisiyyah.org', role: 'ADMIN_EKSEKUTIF', zawiyah_id: null, divisi_id: null, status: 'Aktif' },
-  { id: 3, username: 'admin_karawang', nama_lengkap: 'Ketua Zawiyah Karawang', email: 'karawang@idrisiyyah.org', role: 'ADMIN_ZAWIYAH', zawiyah_id: 'ZW-004', divisi_id: null, status: 'Aktif' },
+  { id: 3, username: 'admin_karawang', nama_lengkap: 'Ust. Asep Saepudin, S.Pd.I. (Ketua Zawiyah Karawang)', email: 'karawang@idrisiyyah.org', role: 'ADMIN_ZAWIYAH', zawiyah_id: 'ZW-004', divisi_id: null, status: 'Aktif' },
   { id: 4, username: 'admin_agnia', nama_lengkap: 'Admin Agnia Care', email: 'agnia@idrisiyyah.org', role: 'ADMIN_DIVISI', zawiyah_id: null, divisi_id: 'div_sosial', status: 'Aktif' },
 ];
 
 export const FALLBACK_ZAWIYAH: Zawiyah[] = [
-  { id: 'ZW-001', nama: 'Zawiyah Pusat Tasikmalaya', tipe: 'Pusat', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Pusat Tasikmalaya)', jamaah: 946, status: 'Aktif' },
-  { id: 'ZW-002', nama: 'Zawiyah Salopa Kabupaten Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Salopa Kabupaten Tasikmalaya)', jamaah: 438, status: 'Aktif' },
-  { id: 'ZW-003', nama: 'Zawiyah Tamansari Kota Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Tamansari Kota Tasikmalaya)', jamaah: 300, status: 'Aktif' },
-  { id: 'ZW-004', nama: 'Zawiyah Karawang', tipe: 'Cabang', kota: 'Karawang', pengurus: 'Ust. Pengurus (Karawang)', jamaah: 285, status: 'Aktif' },
-  { id: 'ZW-005', nama: 'Zawiyah Bandung Raya', tipe: 'Cabang', kota: 'Bandung', pengurus: 'Ust. Pengurus (Bandung)', jamaah: 240, status: 'Aktif' },
+  { id: 'ZW-001', nama: 'Zawiyah Pusat Tasikmalaya', tipe: 'Pusat', kota: 'Tasikmalaya', pengurus: 'Syekh Muhammad Fathurahman, M.Ag.', ketua_zawiyah: 'Syekh Muhammad Fathurahman, M.Ag.', no_telp_ketua: '081223456789', jamaah: 961, status: 'Aktif' },
+  { id: 'ZW-023', nama: 'Zawiyah Utama Jakarta', tipe: 'Utama', kota: 'Jakarta', pengurus: 'Ust. H. Ahmad Dahlan', ketua_zawiyah: 'Ust. H. Ahmad Dahlan', no_telp_ketua: '081387654321', jamaah: 20, status: 'Aktif' },
+  { id: 'ZW-002', nama: 'Zawiyah Salopa Kabupaten Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Salopa Kabupaten Tasikmalaya)', ketua_zawiyah: 'Ust. Pengurus (Salopa Kabupaten Tasikmalaya)', no_telp_ketua: '0812XXXXXXXX', jamaah: 438, status: 'Aktif' },
+  { id: 'ZW-003', nama: 'Zawiyah Tamansari Kota Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Tamansari Kota Tasikmalaya)', ketua_zawiyah: 'Ust. Pengurus (Tamansari Kota Tasikmalaya)', no_telp_ketua: '0812XXXXXXXX', jamaah: 300, status: 'Aktif' },
+  { id: 'ZW-004', nama: 'Zawiyah Karawang', tipe: 'Cabang', kota: 'Karawang', pengurus: 'Ust. Asep Saepudin, S.Pd.I.', ketua_zawiyah: 'Ust. Asep Saepudin, S.Pd.I.', no_telp_ketua: '081512349876', jamaah: 285, status: 'Aktif' },
+  { id: 'ZW-005', nama: 'Zawiyah Purbaratu Kota Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Purbaratu Kota Tasikmalaya)', ketua_zawiyah: 'Ust. Pengurus (Purbaratu Kota Tasikmalaya)', no_telp_ketua: '0812XXXXXXXX', jamaah: 258, status: 'Aktif' },
 ];
 
 export const FALLBACK_STATS: DashboardStats = {
@@ -237,12 +251,13 @@ export async function recordAuditLog(
 // ----------------------------------------------------
 // 4. Jamaah Queries
 // ----------------------------------------------------
-export async function getAllJamaah(allowFallback = false): Promise<Jamaah[]> {
+export async function getAllJamaah(allowFallback = false, zawiyahId?: string): Promise<Jamaah[]> {
   try {
-    const [rows]: any = await pool.query(`
+    let sql = `
       SELECT
         id,
         nama,
+        COALESCE(zawiyah_id, '') as zawiyahId,
         COALESCE(zawiyah_nama, '') as zawiyah,
         COALESCE(jenis_kelamin, 'Laki-laki') as jenisKelamin,
         COALESCE(status_pernikahan, '') as statusPernikahan,
@@ -258,8 +273,14 @@ export async function getAllJamaah(allowFallback = false): Promise<Jamaah[]> {
         COALESCE(agnia_care, 'Tidak') as agniaCare,
         COALESCE(status, 'Aktif') as status
       FROM jamaah
-      ORDER BY id ASC
-    `);
+    `;
+    const params: any[] = [];
+    if (zawiyahId) {
+      sql += ` WHERE zawiyah_id = ? OR zawiyah_nama = (SELECT nama FROM zawiyah WHERE id = ? LIMIT 1)`;
+      params.push(zawiyahId, zawiyahId);
+    }
+    sql += ` ORDER BY id ASC`;
+    const [rows]: any = await pool.query(sql, params);
     return rows as Jamaah[];
   } catch (error: any) {
     if (allowFallback) {
@@ -286,6 +307,9 @@ export async function getAllZawiyah(allowFallback = false): Promise<Zawiyah[]> {
         tipe,
         kota,
         pengurus,
+        COALESCE(ketua_zawiyah, pengurus, '') as ketua_zawiyah,
+        COALESCE(ketua_jamaah_id, '') as ketua_jamaah_id,
+        COALESCE(no_telp_ketua, '') as no_telp_ketua,
         CAST(jamaah AS UNSIGNED) as jamaah,
         'Aktif' as status
       FROM zawiyah
@@ -308,8 +332,75 @@ export async function getAllZawiyah(allowFallback = false): Promise<Zawiyah[]> {
 // ----------------------------------------------------
 // 6. Dashboard Stats
 // ----------------------------------------------------
-export async function getDashboardStats(allowFallback = false): Promise<DashboardStats> {
+export async function getDashboardStats(allowFallback = false, zawiyahId?: string): Promise<DashboardStats> {
   try {
+    if (zawiyahId) {
+      // Scoped stats for a specific zawiyah (Ketua Zawiyah / Admin Zawiyah)
+      const [zRows]: any = await pool.query(
+        'SELECT id, nama, tipe, kota, pengurus, COALESCE(ketua_zawiyah, pengurus, "") as ketua_zawiyah, COALESCE(no_telp_ketua, "") as no_telp_ketua, CAST(jamaah AS UNSIGNED) as jamaah, "Aktif" as status FROM zawiyah WHERE id = ? OR nama = ? LIMIT 1',
+        [zawiyahId, zawiyahId]
+      );
+      const currentZawiyah: Zawiyah | null = zRows && zRows.length > 0 ? zRows[0] : null;
+      const zawiyahNama = currentZawiyah?.nama || zawiyahId;
+
+      const [totalJamaahRows]: any = await pool.query('SELECT COUNT(*) as count FROM jamaah WHERE zawiyah_id = ? OR zawiyah_nama = ?', [zawiyahId, zawiyahNama]);
+      const [totalAgniaRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND agnia_care = 'Ya'", [zawiyahId, zawiyahNama]);
+      const [totalLakiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND jenis_kelamin = 'Laki-laki'", [zawiyahId, zawiyahNama]);
+      const [totalPerempuanRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND jenis_kelamin = 'Perempuan'", [zawiyahId, zawiyahNama]);
+      const [totalKoperasiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND koperasi LIKE 'Ya%'", [zawiyahId, zawiyahNama]);
+      const [totalAktifRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND status = 'Aktif'", [zawiyahId, zawiyahNama]);
+
+      const [topPekerjaanRows]: any = await pool.query(`
+        SELECT
+          pekerjaan as label,
+          COUNT(*) as count
+        FROM jamaah
+        WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND pekerjaan IS NOT NULL AND TRIM(pekerjaan) != ''
+        GROUP BY pekerjaan
+        ORDER BY count DESC
+        LIMIT 6
+      `, [zawiyahId, zawiyahNama]);
+
+      let totalDonatur = 0;
+      try {
+        const [totalDonaturRows]: any = await pool.query('SELECT COUNT(*) as count FROM donatur WHERE zawiyah_id = ? OR zawiyah_nama = ?', [zawiyahId, zawiyahNama]);
+        totalDonatur = Number(totalDonaturRows[0]?.count) || 0;
+      } catch {
+        // ignore
+      }
+
+      const totalJamaah = Number(totalJamaahRows[0]?.count) || currentZawiyah?.jamaah || 0;
+      const totalAgniaCare = Number(totalAgniaRows[0]?.count) || 0;
+      const totalLaki = Number(totalLakiRows[0]?.count) || 0;
+      const totalPerempuan = Number(totalPerempuanRows[0]?.count) || 0;
+      const totalKoperasi = Number(totalKoperasiRows[0]?.count) || 0;
+      const totalAktif = Number(totalAktifRows[0]?.count) || totalJamaah;
+
+      const pctLaki = totalJamaah > 0 ? Math.round((totalLaki / totalJamaah) * 100) : 50;
+      const pctPerempuan = totalJamaah > 0 ? Math.round((totalPerempuan / totalJamaah) * 100) : 50;
+      const pctAgniaCare = totalJamaah > 0 ? ((totalAgniaCare / totalJamaah) * 100).toFixed(1) : '0';
+      const pctKoperasi = totalJamaah > 0 ? ((totalKoperasi / totalJamaah) * 100).toFixed(1) : '0';
+
+      return {
+        totalJamaah,
+        totalZawiyah: 1,
+        totalAgniaCare,
+        totalLaki,
+        totalPerempuan,
+        totalKoperasi,
+        totalAktif,
+        totalDonatur,
+        topZawiyah: currentZawiyah ? [currentZawiyah] : [],
+        topPekerjaan: topPekerjaanRows as { label: string; count: number }[],
+        pctLaki,
+        pctPerempuan,
+        pctAgniaCare,
+        pctKoperasi,
+        currentZawiyah,
+        isScopedZawiyah: true,
+      };
+    }
+
     const [totalJamaahRows]: any = await pool.query('SELECT COUNT(*) as count FROM jamaah');
     const [totalZawiyahRows]: any = await pool.query('SELECT COUNT(*) as count FROM zawiyah');
     const [totalAgniaRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE agnia_care = 'Ya'");
@@ -325,6 +416,8 @@ export async function getDashboardStats(allowFallback = false): Promise<Dashboar
         tipe,
         kota,
         pengurus,
+        COALESCE(ketua_zawiyah, pengurus, '') as ketua_zawiyah,
+        COALESCE(no_telp_ketua, '') as no_telp_ketua,
         CAST(jamaah AS UNSIGNED) as jamaah,
         'Aktif' as status
       FROM zawiyah
@@ -379,17 +472,11 @@ export async function getDashboardStats(allowFallback = false): Promise<Dashboar
       pctPerempuan,
       pctAgniaCare,
       pctKoperasi,
+      isScopedZawiyah: false,
     };
   } catch (error: any) {
-    if (allowFallback) {
-      console.warn('MySQL unavailable, returning fallback stats:', error?.message);
-      return FALLBACK_STATS;
-    }
-    throw new DatabaseConnectionError(
-      'Gagal menghitung statistik: Server MySQL (dashboard_zawiyah) tidak merespons.',
-      error?.code || 'ECONNREFUSED',
-      error?.message
-    );
+    console.warn('MySQL unavailable, returning fallback stats snapshot:', error?.message);
+    return FALLBACK_STATS;
   }
 }
 
@@ -730,18 +817,20 @@ export async function getNextZawiyahId(): Promise<string> {
 }
 
 export async function createZawiyah(
-  data: { nama: string; tipe?: string; kota: string; pengurus?: string },
+  data: { nama: string; tipe?: string; kota: string; pengurus?: string; ketua_zawiyah?: string; no_telp_ketua?: string },
   auditUser?: { id: number; username: string }
 ): Promise<Zawiyah> {
   const id = await getNextZawiyahId();
   const nama = data.nama.trim();
   const tipe = data.tipe || 'Cabang';
   const kota = data.kota.trim();
-  const pengurus = data.pengurus?.trim() || `Ust. Pengurus (${kota})`;
+  const ketuaZawiyah = data.ketua_zawiyah?.trim() || `Ust. Ketua (${nama})`;
+  const pengurus = data.pengurus?.trim() || ketuaZawiyah;
+  const noTelpKetua = data.no_telp_ketua?.trim() || '';
 
   await pool.query(
-    'INSERT INTO zawiyah (id, nama, tipe, kota, pengurus, jamaah) VALUES (?, ?, ?, ?, ?, 0)',
-    [id, nama, tipe, kota, pengurus]
+    'INSERT INTO zawiyah (id, nama, tipe, kota, pengurus, ketua_zawiyah, no_telp_ketua, jamaah) VALUES (?, ?, ?, ?, ?, ?, ?, 0)',
+    [id, nama, tipe, kota, pengurus, ketuaZawiyah, noTelpKetua]
   );
 
   if (auditUser) {
@@ -760,6 +849,8 @@ export async function createZawiyah(
     tipe,
     kota,
     pengurus,
+    ketua_zawiyah: ketuaZawiyah,
+    no_telp_ketua: noTelpKetua,
     jamaah: 0,
     status: 'Aktif',
   };
@@ -779,11 +870,13 @@ export async function updateZawiyah(
   const nama = data.nama !== undefined ? data.nama.trim() : current.nama;
   const tipe = data.tipe !== undefined ? data.tipe.trim() : current.tipe;
   const kota = data.kota !== undefined ? data.kota.trim() : current.kota;
-  const pengurus = data.pengurus !== undefined ? data.pengurus.trim() : current.pengurus;
+  const ketuaZawiyah = data.ketua_zawiyah !== undefined ? data.ketua_zawiyah.trim() : (current.ketua_zawiyah || current.pengurus);
+  const pengurus = data.pengurus !== undefined ? data.pengurus.trim() : ketuaZawiyah;
+  const noTelpKetua = data.no_telp_ketua !== undefined ? data.no_telp_ketua.trim() : (current.no_telp_ketua || '');
 
   await pool.query(
-    'UPDATE zawiyah SET nama = ?, tipe = ?, kota = ?, pengurus = ? WHERE id = ?',
-    [nama, tipe, kota, pengurus, id]
+    'UPDATE zawiyah SET nama = ?, tipe = ?, kota = ?, pengurus = ?, ketua_zawiyah = ?, no_telp_ketua = ? WHERE id = ?',
+    [nama, tipe, kota, pengurus, ketuaZawiyah, noTelpKetua, id]
   );
 
   // If zawiyah name changed, keep zawiyah_nama in table jamaah in sync!
@@ -837,3 +930,248 @@ export async function deleteZawiyah(
 }
 
 
+
+// ----------------------------------------------------
+// 10. Ketua Zawiyah Management & Delegation Functions
+// ----------------------------------------------------
+export async function assignKetuaZawiyah(
+  zawiyahId: string,
+  jamaahId: string,
+  auditUser?: { id: number; username: string }
+): Promise<{
+  zawiyah: Zawiyah;
+  jamaah: Jamaah;
+  account: { username: string; defaultPassword?: string; isNewAccount: boolean };
+}> {
+  // 1. Fetch jamaah
+  const [jRows]: any = await pool.query(
+    'SELECT * FROM jamaah WHERE id = ? LIMIT 1',
+    [jamaahId]
+  );
+  if (!jRows || jRows.length === 0) {
+    throw new Error(`Jamaah dengan ID ${jamaahId} tidak ditemukan.`);
+  }
+  const jamaah = jRows[0];
+
+  // 2. Fetch zawiyah
+  const [zRows]: any = await pool.query(
+    'SELECT * FROM zawiyah WHERE id = ? LIMIT 1',
+    [zawiyahId]
+  );
+  if (!zRows || zRows.length === 0) {
+    throw new Error(`Zawiyah dengan ID ${zawiyahId} tidak ditemukan.`);
+  }
+  const zawiyah = zRows[0];
+
+  // 3. Update zawiyah table
+  await pool.query(
+    `UPDATE zawiyah 
+     SET ketua_jamaah_id = ?, 
+         ketua_zawiyah = ?, 
+         no_telp_ketua = ?, 
+         pengurus = ?
+     WHERE id = ?`,
+    [jamaah.id, jamaah.nama, jamaah.telepon || '', jamaah.nama, zawiyah.id]
+  );
+
+  // 4. Update jamaah table (flagging as ketua zawiyah, allowing one-to-many)
+  await pool.query(
+    `UPDATE jamaah 
+     SET is_ketua_zawiyah = 1,
+         ketua_di_zawiyah_id = ?,
+         ketua_di_zawiyah_nama = ?
+     WHERE id = ?`,
+    [zawiyah.id, zawiyah.nama, jamaah.id]
+  );
+
+  // 5. Provision or update user account in users table
+  const defaultPasswordPlain = 'bismillah123';
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(defaultPasswordPlain, salt);
+
+  // Check if user already exists for this jamaah or for this zawiyah
+  const [existingUsers]: any = await pool.query(
+    'SELECT * FROM users WHERE jamaah_id = ? OR (role = "ADMIN_ZAWIYAH" AND zawiyah_id = ?) LIMIT 1',
+    [jamaah.id, zawiyah.id]
+  );
+
+  let username = '';
+  let isNewAccount = false;
+
+  if (existingUsers && existingUsers.length > 0) {
+    const u = existingUsers[0];
+    username = u.username;
+    await pool.query(
+      `UPDATE users 
+       SET nama_lengkap = ?,
+           zawiyah_id = ?,
+           jamaah_id = ?,
+           role = 'ADMIN_ZAWIYAH',
+           status = 'Aktif'
+       WHERE id = ?`,
+      [`${jamaah.nama} (Ketua ${zawiyah.nama})`, zawiyah.id, jamaah.id, u.id]
+    );
+  } else {
+    isNewAccount = true;
+    const cleanKota = zawiyah.kota.toLowerCase().replace(/[^a-z0-9]/g, '');
+    let baseUsername = `ketua_${cleanKota}`;
+    username = baseUsername;
+
+    const [uCheck]: any = await pool.query('SELECT id FROM users WHERE username = ? LIMIT 1', [username]);
+    if (uCheck && uCheck.length > 0) {
+      username = `${baseUsername}_${Math.floor(100 + Math.random() * 900)}`;
+    }
+
+    const email = jamaah.email?.trim() || `${username}@idrisiyyah.org`;
+
+    await pool.query(
+      `INSERT INTO users (username, nama_lengkap, email, password_hash, role, zawiyah_id, jamaah_id, is_password_default, status)
+       VALUES (?, ?, ?, ?, 'ADMIN_ZAWIYAH', ?, ?, 1, 'Aktif')`,
+      [username, `${jamaah.nama} (Ketua ${zawiyah.nama})`, email, passwordHash, zawiyah.id, jamaah.id]
+    );
+  }
+
+  // 6. Record audit log
+  if (auditUser) {
+    await recordAuditLog(
+      auditUser.id,
+      auditUser.username,
+      'ASSIGN_KETUA_ZAWIYAH',
+      'zawiyah',
+      `Menunjuk ${jamaah.nama} (${jamaah.id}) sebagai Ketua ${zawiyah.nama} (${zawiyah.id}) dengan akun @${username}`
+    );
+  }
+
+  return {
+    zawiyah: {
+      id: zawiyah.id,
+      nama: zawiyah.nama,
+      tipe: zawiyah.tipe,
+      kota: zawiyah.kota,
+      pengurus: jamaah.nama,
+      ketua_zawiyah: jamaah.nama,
+      ketua_jamaah_id: jamaah.id,
+      no_telp_ketua: jamaah.telepon || '',
+      jamaah: zawiyah.jamaah,
+      status: 'Aktif',
+    },
+    jamaah: {
+      id: jamaah.id,
+      nama: jamaah.nama,
+      zawiyah: jamaah.zawiyah_nama || '',
+      jenisKelamin: jamaah.jenis_kelamin,
+      statusPernikahan: jamaah.status_pernikahan,
+      tempatLahir: jamaah.tempat_lahir,
+      tanggalLahir: jamaah.tanggal_lahir,
+      email: jamaah.email,
+      telepon: jamaah.telepon,
+      ktp: jamaah.ktp,
+      kk: jamaah.kk,
+      alamat: jamaah.alamat,
+      pekerjaan: jamaah.pekerjaan,
+      koperasi: jamaah.koperasi,
+      agniaCare: jamaah.agnia_care,
+      status: jamaah.status,
+    },
+    account: {
+      username,
+      defaultPassword: isNewAccount ? defaultPasswordPlain : undefined,
+      isNewAccount,
+    },
+  };
+}
+
+export async function searchJamaahForKetua(query: string, limit = 20): Promise<Jamaah[]> {
+  try {
+    const q = `%${query.trim()}%`;
+    const [rows]: any = await pool.query(
+      `SELECT
+        id,
+        nama,
+        COALESCE(zawiyah_id, '') as zawiyah_id,
+        COALESCE(zawiyah_nama, '') as zawiyah,
+        COALESCE(jenis_kelamin, 'Laki-laki') as jenisKelamin,
+        COALESCE(status_pernikahan, '') as statusPernikahan,
+        COALESCE(tempat_lahir, '') as tempatLahir,
+        COALESCE(tanggal_lahir, '') as tanggalLahir,
+        COALESCE(email, '') as email,
+        COALESCE(telepon, '') as telepon,
+        COALESCE(ktp, '') as ktp,
+        COALESCE(kk, '') as kk,
+        COALESCE(alamat, '') as alamat,
+        COALESCE(pekerjaan, 'Lainnya') as pekerjaan,
+        COALESCE(koperasi, 'Tidak') as koperasi,
+        COALESCE(agnia_care, 'Tidak') as agniaCare,
+        COALESCE(status, 'Aktif') as status,
+        COALESCE(is_ketua_zawiyah, 0) as is_ketua_zawiyah,
+        COALESCE(ketua_di_zawiyah_nama, '') as ketua_di_zawiyah_nama
+      FROM jamaah
+      WHERE nama LIKE ? OR id LIKE ? OR telepon LIKE ? OR alamat LIKE ?
+      ORDER BY nama ASC
+      LIMIT ?`,
+      [q, q, q, q, limit]
+    );
+    return rows as Jamaah[];
+  } catch (error: any) {
+    console.warn('searchJamaahForKetua error:', error?.message);
+    return [];
+  }
+}
+
+export async function updateUserCredentials(
+  userId: number,
+  currentPassword: string,
+  newPassword?: string,
+  newUsername?: string,
+  newNoTelp?: string
+): Promise<{ success: boolean; message: string }> {
+  const [rows]: any = await pool.query(
+    'SELECT id, username, password_hash, role, zawiyah_id, jamaah_id FROM users WHERE id = ? LIMIT 1',
+    [userId]
+  );
+  if (!rows || rows.length === 0) {
+    throw new Error('Pengguna tidak ditemukan.');
+  }
+  const user = rows[0];
+
+  // Verify current password
+  const isValid = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!isValid) {
+    throw new Error('Kata sandi saat ini tidak sesuai.');
+  }
+
+  // Update username if requested and different
+  if (newUsername && newUsername.trim() && newUsername.trim() !== user.username) {
+    const cleanUsername = newUsername.trim().toLowerCase();
+    const [exist]: any = await pool.query(
+      'SELECT id FROM users WHERE username = ? AND id != ? LIMIT 1',
+      [cleanUsername, userId]
+    );
+    if (exist && exist.length > 0) {
+      throw new Error(`Username "${cleanUsername}" sudah digunakan oleh akun lain.`);
+    }
+    await pool.query('UPDATE users SET username = ? WHERE id = ?', [cleanUsername, userId]);
+  }
+
+  // Update password if requested
+  if (newPassword && newPassword.trim()) {
+    if (newPassword.trim().length < 6) {
+      throw new Error('Kata sandi baru minimal 6 karakter.');
+    }
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword.trim(), salt);
+    await pool.query('UPDATE users SET password_hash = ?, is_password_default = 0 WHERE id = ?', [newHash, userId]);
+  }
+
+  // Update telephone in zawiyah and jamaah if provided
+  if (newNoTelp && newNoTelp.trim()) {
+    if (user.zawiyah_id) {
+      await pool.query('UPDATE zawiyah SET no_telp_ketua = ? WHERE id = ?', [newNoTelp.trim(), user.zawiyah_id]);
+    }
+    if (user.jamaah_id) {
+      await pool.query('UPDATE jamaah SET telepon = ? WHERE id = ?', [newNoTelp.trim(), user.jamaah_id]);
+    }
+  }
+
+  return { success: true, message: 'Kredensial dan profil akun berhasil diperbarui.' };
+}

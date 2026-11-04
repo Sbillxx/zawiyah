@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllJamaah, createJamaah, updateJamaah, deleteJamaah } from '@/lib/db';
-import { verifySuperAdmin } from '@/lib/auth';
+import { verifyAdminAuth, getSessionUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,13 +10,21 @@ export async function GET(request: Request) {
     const limit = searchParams.get('limit');
     const allowOffline = searchParams.get('offline') === 'true';
 
-    let data = await getAllJamaah(allowOffline);
+    // Scoped access: if logged in as ADMIN_ZAWIYAH, automatically filter to their zawiyah
+    const user = await getSessionUser();
+    let targetZawiyahId = searchParams.get('zawiyah_id') || undefined;
+    if (user?.role === 'ADMIN_ZAWIYAH' && user.zawiyah_id) {
+      targetZawiyahId = user.zawiyah_id;
+    }
+
+    let data = await getAllJamaah(allowOffline, targetZawiyahId);
     if (limit) {
       data = data.slice(0, parseInt(limit, 10));
     }
     return NextResponse.json({
       success: true,
       database: 'MySQL (dashboard_zawiyah)',
+      scopedZawiyahId: targetZawiyahId || null,
       total: data.length,
       data,
     });
@@ -35,7 +43,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const auth = await verifySuperAdmin();
+    const auth = await verifyAdminAuth();
     if (!auth.authorized || !auth.user) {
       return NextResponse.json(
         { success: false, message: auth.error || 'Akses ditolak.' },
@@ -49,6 +57,11 @@ export async function POST(request: Request) {
         { success: false, message: 'Nama jamaah wajib diisi.' },
         { status: 400 }
       );
+    }
+
+    // If logged in as Ketua/Admin Zawiyah, lock registration to their zawiyah branch
+    if (auth.isAdminZawiyah && auth.user.zawiyah_id) {
+      body.zawiyah_id = auth.user.zawiyah_id;
     }
 
     const newJamaah = await createJamaah(body, {
@@ -72,7 +85,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const auth = await verifySuperAdmin();
+    const auth = await verifyAdminAuth();
     if (!auth.authorized || !auth.user) {
       return NextResponse.json(
         { success: false, message: auth.error || 'Akses ditolak.' },
@@ -88,6 +101,11 @@ export async function PUT(request: Request) {
         { success: false, message: 'ID jamaah wajib disertakan.' },
         { status: 400 }
       );
+    }
+
+    // If logged in as Ketua/Admin Zawiyah, lock modification within their zawiyah branch
+    if (auth.isAdminZawiyah && auth.user.zawiyah_id) {
+      updateData.zawiyah_id = auth.user.zawiyah_id;
     }
 
     await updateJamaah(id, updateData, {
@@ -110,7 +128,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const auth = await verifySuperAdmin();
+    const auth = await verifyAdminAuth();
     if (!auth.authorized || !auth.user) {
       return NextResponse.json(
         { success: false, message: auth.error || 'Akses ditolak.' },

@@ -10,6 +10,7 @@ interface AnimatedNumberProps {
   decimals?: number;
   duration?: number; // ms
   className?: string;
+  locale?: string;
 }
 
 export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
@@ -19,6 +20,7 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   decimals = 0,
   duration = 1800,
   className = '',
+  locale = 'id-ID',
 }) => {
   const [displayValue, setDisplayValue] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -60,9 +62,10 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     };
   }, [isInView, value, duration]);
 
+  const targetLocale = locale || 'id-ID';
   const formatted = decimals > 0
-    ? displayValue.toLocaleString('en-GB', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
-    : Math.round(displayValue).toLocaleString('en-GB');
+    ? displayValue.toLocaleString(targetLocale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    : Math.round(displayValue).toLocaleString(targetLocale);
 
   return (
     <span ref={ref} className={className} suppressHydrationWarning>

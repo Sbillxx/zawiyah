@@ -29,6 +29,7 @@ import type { Jamaah, Zawiyah } from '@/lib/data/ssot';
 interface Props {
   jamaahList: Jamaah[];
   zawiyahList: Zawiyah[];
+  currentUser?: any;
 }
 
 interface ToastState {
@@ -54,7 +55,10 @@ const INITIAL_FORM: Partial<Jamaah> = {
   status: 'Aktif',
 };
 
-export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Props) {
+export default function AdminJamaah({ jamaahList: initialList, zawiyahList, currentUser }: Props) {
+  const isZawiyahAdmin = currentUser?.role === 'ADMIN_ZAWIYAH';
+  const assignedZawiyah = zawiyahList.find((z) => z.id === currentUser?.zawiyah_id) || (isZawiyahAdmin ? zawiyahList.find((z) => z.id === 'ZW-004') : null);
+
   const [list, setList] = useState<Jamaah[]>(initialList);
   const [search, setSearch] = useState('');
   const [filterZawiyah, setFilterZawiyah] = useState('ALL');
@@ -286,7 +290,7 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Pr
             </Link>
             <span className="hidden sm:inline text-[#243324]/20 dark:text-white/20">/</span>
             <h1 className="font-display text-base sm:text-lg text-[#1F2B1D] dark:text-[#F4EFE6] font-light truncate">
-              Manajemen Data Jamaah
+              {isZawiyahAdmin ? `Manajemen Jamaah — ${assignedZawiyah?.nama || 'Cabang Zawiyah'}` : 'Manajemen Data Jamaah'}
             </h1>
           </div>
 
@@ -344,29 +348,36 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Pr
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
               {/* 1. Zawiyah Filter */}
-              <div className="relative flex items-center sm:col-span-1">
-                <MapPin className="absolute left-3 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
-                <select
-                  value={filterZawiyah}
-                  onChange={(e) => {
-                    setFilterZawiyah(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className={`w-full pl-8 pr-7 py-2.5 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
-                    filterZawiyah !== 'ALL'
-                      ? 'bg-[#1F2B1D]/10 dark:bg-[#85E7B7]/15 border-[#1F2B1D]/30 dark:border-[#85E7B7]/30 text-[#1F2B1D] dark:text-[#85E7B7]'
-                      : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
-                  }`}
-                >
-                  <option value="ALL">Semua Zawiyah ({uniqueZawiyah.length})</option>
-                  {uniqueZawiyah.map((z) => (
-                    <option key={z} value={z}>
-                      {z}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
-              </div>
+              {isZawiyahAdmin ? (
+                <div className="relative flex items-center sm:col-span-1 px-3 py-2 text-xs rounded-xl border border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium truncate gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="truncate">{assignedZawiyah?.nama || 'Zawiyah Karawang'}</span>
+                </div>
+              ) : (
+                <div className="relative flex items-center sm:col-span-1">
+                  <MapPin className="absolute left-3 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                  <select
+                    value={filterZawiyah}
+                    onChange={(e) => {
+                      setFilterZawiyah(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full pl-8 pr-7 py-2.5 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                      filterZawiyah !== 'ALL'
+                        ? 'bg-[#1F2B1D]/10 dark:bg-[#85E7B7]/15 border-[#1F2B1D]/30 dark:border-[#85E7B7]/30 text-[#1F2B1D] dark:text-[#85E7B7]'
+                        : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
+                    }`}
+                  >
+                    <option value="ALL">Semua Zawiyah ({uniqueZawiyah.length})</option>
+                    {uniqueZawiyah.map((z) => (
+                      <option key={z} value={z}>
+                        {z}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                </div>
+              )}
 
               {/* In Mobile: 3 columns side by side (Gender, Agnia, Status) */}
               <div className="grid grid-cols-3 sm:col-span-3 gap-2">
@@ -681,17 +692,26 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Pr
                 {/* Cabang Zawiyah */}
                 <div className="space-y-1">
                   <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Cabang Zawiyah</label>
-                  <select
-                    value={formData.zawiyah || ''}
-                    onChange={(e) => setFormData({ ...formData, zawiyah: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 cursor-pointer"
-                  >
-                    {uniqueZawiyah.map((z) => (
-                      <option key={z} value={z} className="dark:bg-[#1a251a]">
-                        {z}
-                      </option>
-                    ))}
-                  </select>
+                  {isZawiyahAdmin ? (
+                    <div className="w-full px-3 py-2 border border-emerald-500/30 rounded-xl bg-emerald-500/5 text-emerald-900 dark:text-emerald-200 font-medium flex items-center justify-between text-xs">
+                      <span>{assignedZawiyah?.nama || formData.zawiyah}</span>
+                      <span className="text-[10px] bg-emerald-600/15 px-2 py-0.5 rounded text-emerald-700 dark:text-emerald-300">
+                        Terkunci ke Cabang Anda
+                      </span>
+                    </div>
+                  ) : (
+                    <select
+                      value={formData.zawiyah || ''}
+                      onChange={(e) => setFormData({ ...formData, zawiyah: e.target.value })}
+                      className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 cursor-pointer"
+                    >
+                      {uniqueZawiyah.map((z) => (
+                        <option key={z} value={z} className="dark:bg-[#1a251a]">
+                          {z}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 {/* Jenis Kelamin */}
@@ -900,17 +920,26 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Pr
                 {/* Cabang Zawiyah */}
                 <div className="space-y-1">
                   <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Cabang Zawiyah</label>
-                  <select
-                    value={formData.zawiyah || ''}
-                    onChange={(e) => setFormData({ ...formData, zawiyah: e.target.value })}
-                    className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 cursor-pointer"
-                  >
-                    {uniqueZawiyah.map((z) => (
-                      <option key={z} value={z} className="dark:bg-[#1a251a]">
-                        {z}
-                      </option>
-                    ))}
-                  </select>
+                  {isZawiyahAdmin ? (
+                    <div className="w-full px-3 py-2 border border-emerald-500/30 rounded-xl bg-emerald-500/5 text-emerald-900 dark:text-emerald-200 font-medium flex items-center justify-between text-xs">
+                      <span>{assignedZawiyah?.nama || formData.zawiyah}</span>
+                      <span className="text-[10px] bg-emerald-600/15 px-2 py-0.5 rounded text-emerald-700 dark:text-emerald-300">
+                        Terkunci ke Cabang Anda
+                      </span>
+                    </div>
+                  ) : (
+                    <select
+                      value={formData.zawiyah || ''}
+                      onChange={(e) => setFormData({ ...formData, zawiyah: e.target.value })}
+                      className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 cursor-pointer"
+                    >
+                      {uniqueZawiyah.map((z) => (
+                        <option key={z} value={z} className="dark:bg-[#1a251a]">
+                          {z}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 {/* Jenis Kelamin */}

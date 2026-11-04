@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllZawiyah, createZawiyah, updateZawiyah, deleteZawiyah } from '@/lib/db';
-import { verifySuperAdmin } from '@/lib/auth';
+import { verifySuperAdmin, verifyAdminAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const auth = await verifySuperAdmin();
     if (!auth.authorized || !auth.user) {
       return NextResponse.json(
-        { success: false, message: auth.error || 'Akses ditolak.' },
+        { success: false, message: auth.error || 'Akses ditolak. Hanya Super Admin yang dapat menambah cabang baru.' },
         { status: 403 }
       );
     }
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const auth = await verifySuperAdmin();
+    const auth = await verifyAdminAuth();
     if (!auth.authorized || !auth.user) {
       return NextResponse.json(
         { success: false, message: auth.error || 'Akses ditolak.' },
@@ -83,6 +83,14 @@ export async function PUT(request: Request) {
       return NextResponse.json(
         { success: false, message: 'ID zawiyah wajib disertakan.' },
         { status: 400 }
+      );
+    }
+
+    // Admin Zawiyah can update their own branch details (e.g. ketua zawiyah & contact)
+    if (auth.isAdminZawiyah && auth.user.zawiyah_id !== id) {
+      return NextResponse.json(
+        { success: false, message: 'Anda hanya memiliki izin memperbarui profil zawiyah binaan Anda sendiri.' },
+        { status: 403 }
       );
     }
 
@@ -109,7 +117,7 @@ export async function DELETE(request: Request) {
     const auth = await verifySuperAdmin();
     if (!auth.authorized || !auth.user) {
       return NextResponse.json(
-        { success: false, message: auth.error || 'Akses ditolak.' },
+        { success: false, message: auth.error || 'Akses ditolak. Hanya Super Admin yang berhak menghapus cabang.' },
         { status: 403 }
       );
     }

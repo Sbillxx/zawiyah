@@ -1,5 +1,7 @@
+import { redirect } from 'next/navigation';
 import AdminZawiyah from './AdminZawiyah';
-import { getAllZawiyah, checkDbConnection } from '@/lib/data/ssot';
+import { getAllZawiyah, checkDbConnection, type Zawiyah } from '@/lib/data/ssot';
+import { getSessionUser } from '@/lib/auth';
 import DatabaseErrorView from '@/app/components/DatabaseErrorView';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +13,14 @@ interface Props {
 export default async function ZawiyahPage(props: Props) {
   const searchParams = props.searchParams ? await props.searchParams : {};
   const isOfflineRequested = searchParams?.offline === 'true';
+
+  const currentUser = await getSessionUser();
+
+  // Ketua / Admin Zawiyah hanya mengelola cabangnya sendiri dari dashboard,
+  // tidak memiliki akses ke master data 86 cabang zawiyah se-nusantara.
+  if (currentUser?.role === 'ADMIN_ZAWIYAH') {
+    redirect('/admin');
+  }
 
   const conn = await checkDbConnection();
 
@@ -25,7 +35,14 @@ export default async function ZawiyahPage(props: Props) {
   }
 
   const isFallbackMode = !conn.isConnected || isOfflineRequested;
-  const zawiyahList = await getAllZawiyah(isFallbackMode);
+  let zawiyahList: Zawiyah[] = [];
 
-  return <AdminZawiyah zawiyahList={zawiyahList} />;
+  try {
+    zawiyahList = await getAllZawiyah(isFallbackMode);
+  } catch (err: any) {
+    console.warn('MySQL load error in ZawiyahPage, fallback:', err?.message);
+    zawiyahList = await getAllZawiyah(true);
+  }
+
+  return <AdminZawiyah zawiyahList={zawiyahList} currentUser={currentUser} />;
 }
