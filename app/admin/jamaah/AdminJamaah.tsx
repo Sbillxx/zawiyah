@@ -8,6 +8,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  MapPin,
   ArrowLeft,
   Users,
   Heart,
@@ -288,23 +290,12 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Pr
             </h1>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 text-xs text-[#657351] dark:text-[#A3B59E] px-3 py-1.5 rounded-xl bg-[#243324]/5 dark:bg-white/5">
-              <Users className="w-3.5 h-3.5" />
-              <span className="font-display text-base font-light text-[#1F2B1D] dark:text-[#F4EFE6]">
-                {filtered.length.toLocaleString('id-ID')}
-              </span>
-              <span>/ {list.length.toLocaleString('id-ID')}</span>
-            </div>
-
-            <button
-              onClick={handleOpenAdd}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden xs:inline">Tambah Jamaah</span>
-              <span className="xs:hidden">Tambah</span>
-            </button>
+          <div className="flex items-center gap-2 text-xs text-[#657351] dark:text-[#A3B59E] px-2.5 py-1.5 rounded-xl bg-[#243324]/5 dark:bg-white/5 shrink-0">
+            <Users className="w-3.5 h-3.5 text-[#4A5D44] dark:text-[#A3B59E]" />
+            <span className="font-display font-medium text-[#1F2B1D] dark:text-[#F4EFE6]">
+              {filtered.length.toLocaleString('id-ID')}
+            </span>
+            <span className="hidden sm:inline">jamaah</span>
           </div>
         </div>
       </header>
@@ -333,63 +324,142 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList }: Pr
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 items-center">
-            <div className="flex items-center gap-1.5 mr-1">
-              <Filter className="w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E]" />
-              <span className="text-xs text-[#657351] dark:text-[#A3B59E] font-medium">Filter:</span>
+          <div className="space-y-2.5 pt-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#4A5D44] dark:text-[#CBD7C7] uppercase tracking-wider">
+                <Filter className="w-3.5 h-3.5 text-[#006948] dark:text-[#68DBA9]" />
+                <span>Filter Jamaah</span>
+              </div>
+              {hasFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-[11px] text-[#657351] dark:text-[#A3B59E] hover:text-rose-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer font-medium"
+                >
+                  <X className="w-3 h-3" />
+                  <span>Reset Filter</span>
+                </button>
+              )}
             </div>
-            <select
-              value={filterZawiyah}
-              onChange={(e) => {
-                setFilterZawiyah(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-3 py-1.5 text-xs border border-[#243324]/15 dark:border-white/15 rounded-lg bg-transparent text-[#243324] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 transition-colors cursor-pointer"
-            >
-              <option value="ALL">Semua Zawiyah ({uniqueZawiyah.length})</option>
-              {uniqueZawiyah.map((z) => (
-                <option key={z} value={z}>
-                  {z}
-                </option>
-              ))}
-            </select>
-            <select
-              value={filterGender}
-              onChange={(e) => {
-                setFilterGender(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-3 py-1.5 text-xs border border-[#243324]/15 dark:border-white/15 rounded-lg bg-transparent text-[#243324] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 transition-colors cursor-pointer"
-            >
-              <option value="ALL">Semua Gender</option>
-              <option value="Laki-laki">Laki-laki</option>
-              <option value="Perempuan">Perempuan</option>
-            </select>
-            <select
-              value={filterAgnia}
-              onChange={(e) => {
-                setFilterAgnia(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-3 py-1.5 text-xs border border-[#243324]/15 dark:border-white/15 rounded-lg bg-transparent text-[#243324] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 transition-colors cursor-pointer"
-            >
-              <option value="ALL">Semua Agnia Care</option>
-              <option value="YA">Peserta Agnia Care</option>
-              <option value="TIDAK">Non Peserta</option>
-            </select>
-            <select
-              value={filterStatus}
-              onChange={(e) => {
-                setFilterStatus(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-3 py-1.5 text-xs border border-[#243324]/15 dark:border-white/15 rounded-lg bg-transparent text-[#243324] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 transition-colors cursor-pointer"
-            >
-              <option value="ALL">Semua Status</option>
-              <option value="Aktif">Aktif</option>
-              <option value="Nonaktif">Nonaktif</option>
-            </select>
+
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+              {/* 1. Zawiyah Filter */}
+              <div className="relative flex items-center sm:col-span-1">
+                <MapPin className="absolute left-3 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                <select
+                  value={filterZawiyah}
+                  onChange={(e) => {
+                    setFilterZawiyah(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className={`w-full pl-8 pr-7 py-2.5 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                    filterZawiyah !== 'ALL'
+                      ? 'bg-[#1F2B1D]/10 dark:bg-[#85E7B7]/15 border-[#1F2B1D]/30 dark:border-[#85E7B7]/30 text-[#1F2B1D] dark:text-[#85E7B7]'
+                      : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
+                  }`}
+                >
+                  <option value="ALL">Semua Zawiyah ({uniqueZawiyah.length})</option>
+                  {uniqueZawiyah.map((z) => (
+                    <option key={z} value={z}>
+                      {z}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+              </div>
+
+              {/* In Mobile: 3 columns side by side (Gender, Agnia, Status) */}
+              <div className="grid grid-cols-3 sm:col-span-3 gap-2">
+                {/* 2. Gender Filter */}
+                <div className="relative flex items-center">
+                  <Users className="absolute left-2.5 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                  <select
+                    value={filterGender}
+                    onChange={(e) => {
+                      setFilterGender(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full pl-7 pr-6 py-2.5 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                      filterGender !== 'ALL'
+                        ? 'bg-[#1F2B1D]/10 dark:bg-[#85E7B7]/15 border-[#1F2B1D]/30 dark:border-[#85E7B7]/30 text-[#1F2B1D] dark:text-[#85E7B7]'
+                        : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
+                    }`}
+                  >
+                    <option value="ALL">Semua Gender</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                </div>
+
+                {/* 3. Agnia Care Filter */}
+                <div className="relative flex items-center">
+                  <Heart className={`absolute left-2.5 w-3.5 h-3.5 pointer-events-none ${filterAgnia === 'YA' ? 'text-rose-500 fill-rose-500' : 'text-[#657351] dark:text-[#A3B59E]'}`} />
+                  <select
+                    value={filterAgnia}
+                    onChange={(e) => {
+                      setFilterAgnia(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full pl-7 pr-6 py-2.5 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                      filterAgnia !== 'ALL'
+                        ? 'bg-rose-500/10 dark:bg-rose-500/20 border-rose-500/30 text-rose-700 dark:text-rose-300'
+                        : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
+                    }`}
+                  >
+                    <option value="ALL">Semua Agnia</option>
+                    <option value="YA">Peserta Agnia</option>
+                    <option value="TIDAK">Non Peserta</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                </div>
+
+                {/* 4. Status Filter */}
+                <div className="relative flex items-center">
+                  <CheckCircle2 className={`absolute left-2.5 w-3.5 h-3.5 pointer-events-none ${filterStatus === 'Aktif' ? 'text-emerald-500' : 'text-[#657351] dark:text-[#A3B59E]'}`} />
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full pl-7 pr-6 py-2.5 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                      filterStatus !== 'ALL'
+                        ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                        : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
+                    }`}
+                  >
+                    <option value="ALL">Semua Status</option>
+                    <option value="Aktif">Aktif</option>
+                    <option value="Nonaktif">Nonaktif</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Action & Summary Bar - Situated Between Filter and Table */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 pt-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-[#657351] dark:text-[#A3B59E]">
+              Menampilkan <strong className="text-[#1F2B1D] dark:text-[#F4EFE6] font-semibold">{filtered.length.toLocaleString('id-ID')}</strong> dari {list.length.toLocaleString('id-ID')} jamaah
+            </span>
+            {hasFilters && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#243324]/10 dark:bg-white/10 text-[#243324] dark:text-[#F4EFE6]">
+                Tersaring
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={handleOpenAdd}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold shadow-md hover:bg-[#2F3D2D] dark:hover:bg-[#9BF0C6] active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Jamaah Baru</span>
+          </button>
         </div>
 
         {/* Data Table with Action Column */}

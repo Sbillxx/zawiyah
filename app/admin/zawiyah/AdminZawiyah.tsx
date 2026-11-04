@@ -6,6 +6,8 @@ import {
   Search,
   ArrowLeft,
   Building2,
+  ChevronDown,
+  ArrowUpDown,
   Users,
   MapPin,
   User,
@@ -236,23 +238,12 @@ export default function AdminZawiyah({ zawiyahList: initialList }: Props) {
             </h1>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 text-xs text-[#657351] dark:text-[#A3B59E] px-3 py-1.5 rounded-xl bg-[#243324]/5 dark:bg-white/5">
-              <Building2 className="w-3.5 h-3.5" />
-              <span className="font-display text-base font-light text-[#1F2B1D] dark:text-[#F4EFE6]">
-                {filtered.length}
-              </span>
-              <span>/ {list.length} cabang</span>
-            </div>
-
-            <button
-              onClick={handleOpenAdd}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden xs:inline">Tambah Zawiyah</span>
-              <span className="xs:hidden">Tambah</span>
-            </button>
+          <div className="flex items-center gap-2 text-xs text-[#657351] dark:text-[#A3B59E] px-2.5 py-1.5 rounded-xl bg-[#243324]/5 dark:bg-white/5 shrink-0">
+            <Building2 className="w-3.5 h-3.5 text-[#4A5D44] dark:text-[#A3B59E]" />
+            <span className="font-display font-medium text-[#1F2B1D] dark:text-[#F4EFE6]">
+              {filtered.length}
+            </span>
+            <span className="hidden sm:inline">/ {list.length} cabang</span>
           </div>
         </div>
       </header>
@@ -281,37 +272,89 @@ export default function AdminZawiyah({ zawiyahList: initialList }: Props) {
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="glass-panel rounded-2xl p-4 flex flex-wrap gap-3 items-center">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari nama cabang, kota, atau pengurus..."
-              className="w-full pl-9 pr-4 py-2.5 bg-transparent border border-[#243324]/15 dark:border-white/15 rounded-xl text-sm text-[#243324] dark:text-[#F4EFE6] placeholder-[#A3B59E] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 transition-colors"
-            />
+        <div className="glass-panel rounded-2xl p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari nama cabang, kota, atau pengurus..."
+                className="w-full pl-9 pr-4 py-2.5 bg-transparent border border-[#243324]/15 dark:border-white/15 rounded-xl text-sm text-[#243324] dark:text-[#F4EFE6] placeholder-[#A3B59E] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 transition-colors"
+              />
+            </div>
+            {(search || filterTipe !== 'ALL') && (
+              <button
+                type="button"
+                onClick={() => { setSearch(''); setFilterTipe('ALL'); }}
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-[#243324]/15 dark:border-white/15 text-xs text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] hover:border-[#243324]/30 dark:hover:border-white/30 transition-all cursor-pointer font-medium"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">Reset</span>
+              </button>
+            )}
           </div>
-          <select
-            value={filterTipe}
-            onChange={(e) => setFilterTipe(e.target.value)}
-            className="px-3 py-2.5 text-sm border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#243324] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 cursor-pointer transition-colors"
+
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+            {/* Tipe Selector */}
+            <div className="relative flex items-center flex-1">
+              <Building2 className="absolute left-3 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+              <select
+                value={filterTipe}
+                onChange={(e) => setFilterTipe(e.target.value)}
+                className={`w-full pl-8 pr-7 py-2 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                  filterTipe !== 'ALL'
+                    ? 'bg-[#1F2B1D]/10 dark:bg-[#85E7B7]/15 border-[#1F2B1D]/30 dark:border-[#85E7B7]/30 text-[#1F2B1D] dark:text-[#85E7B7]'
+                    : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
+                }`}
+              >
+                <option value="ALL">Semua Tipe</option>
+                {uniqueTipe.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+            </div>
+
+            {/* Sort Selector */}
+            <div className="relative flex items-center flex-1">
+              <ArrowUpDown className="absolute left-3 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'jamaah' | 'nama')}
+                className="w-full pl-8 pr-7 py-2 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25"
+              >
+                <option value="jamaah">Urutkan: Jamaah Terbanyak</option>
+                <option value="nama">Urutkan: Nama A-Z</option>
+              </select>
+              <ChevronDown className="absolute right-2.5 w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E] pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Action & Summary Bar - Situated Between Filter and Grid */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 pt-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-[#657351] dark:text-[#A3B59E]">
+              Menampilkan <strong className="text-[#1F2B1D] dark:text-[#F4EFE6] font-semibold">{filtered.length}</strong> dari {list.length} cabang zawiyah
+            </span>
+            {(search || filterTipe !== 'ALL') && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#243324]/10 dark:bg-white/10 text-[#243324] dark:text-[#F4EFE6]">
+                Tersaring
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={handleOpenAdd}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold shadow-md hover:bg-[#2F3D2D] dark:hover:bg-[#9BF0C6] active:scale-[0.98] transition-all cursor-pointer w-full sm:w-auto"
           >
-            <option value="ALL">Semua Tipe</option>
-            {uniqueTipe.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'jamaah' | 'nama')}
-            className="px-3 py-2.5 text-sm border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#243324] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 cursor-pointer transition-colors"
-          >
-            <option value="jamaah">Urutkan: Jamaah Terbanyak</option>
-            <option value="nama">Urutkan: Nama A-Z</option>
-          </select>
+            <Plus className="w-4 h-4" />
+            <span>Tambah Cabang Zawiyah</span>
+          </button>
         </div>
 
         {/* Zawiyah Grid */}
