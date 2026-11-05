@@ -16,10 +16,7 @@ import {
   EyeOff,
   ArrowLeft,
   Save,
-  Database,
   Lock,
-  Sparkles,
-  Info
 } from 'lucide-react';
 import type { Zawiyah } from '@/lib/data/ssot';
 
@@ -490,20 +487,8 @@ export default function AdminPengaturan({ currentUser, activeZawiyah: initialAct
             </form>
           </div>
         </div>
-
-        {/* Technical Session & Server Info Footer */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#243324]/4 dark:bg-white/5 border border-[#243324]/8 dark:border-white/10 text-xs text-[#657351] dark:text-[#A3B59E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Database className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Basis Data: <strong className="text-[#1F2B1D] dark:text-[#F4EFE6]">TiDB Cloud (AWS Singapore)</strong></span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span>Role: <strong className="text-[#1F2B1D] dark:text-[#F4EFE6]">{currentUser?.role || 'User'}</strong></span>
-            <span>•</span>
-            <span>ID Akun: <strong className="text-[#1F2B1D] dark:text-[#F4EFE6] font-mono">{currentUser?.id || '-'}</strong></span>
-          </div>
-        </div>
       </main>
     </div>
   );
 }
+
