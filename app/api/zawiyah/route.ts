@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAllZawiyah, createZawiyah, updateZawiyah, deleteZawiyah } from '@/lib/db';
 import { verifySuperAdmin, verifyAdminAuth } from '@/lib/auth';
+import { ZAWIYAH_NODES } from '@/app/data/indonesiaMapData';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,25 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const allowOffline = searchParams.get('offline') === 'true';
 
-    const data = await getAllZawiyah(allowOffline);
+    let data;
+    try {
+      data = await getAllZawiyah(allowOffline);
+    } catch (dbErr) {
+      console.warn('Live DB query failed, serving full fallback zawiyah data:', dbErr);
+      data = ZAWIYAH_NODES.map((n) => ({
+        id: n.id,
+        nama: n.nama,
+        tipe: n.tipe,
+        kota: n.kota,
+        pengurus: n.pengurus,
+        ketua_zawiyah: n.pengurus,
+        ketua_jamaah_id: '',
+        no_telp_ketua: '',
+        jamaah: n.jamaah,
+        status: 'Aktif',
+      }));
+    }
+
     return NextResponse.json({
       success: true,
       database: 'MySQL (dashboard_zawiyah)',

@@ -20,7 +20,13 @@ export async function GET(request: Request) {
       }
     }
 
-    const stats = await getDashboardStats(allowOffline, targetZawiyahId);
+    let stats;
+    try {
+      stats = await getDashboardStats(allowOffline, targetZawiyahId);
+    } catch (dbErr) {
+      console.warn('Live stats query failed, serving fallback stats:', dbErr);
+      stats = await getDashboardStats(true, targetZawiyahId);
+    }
     return NextResponse.json({
       success: true,
       database: 'MySQL (dashboard_zawiyah)',
