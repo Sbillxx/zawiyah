@@ -17,6 +17,9 @@ import {
   Users,
   Heart,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Search,
   Sun,
   Moon,
   Sparkles,
@@ -181,38 +184,44 @@ export default function LoginPage() {
     }
   };
 
-  // Format accounts list: merge DB users if available
-  const accountsToDisplay = dbUsers.length > 0
-    ? dbUsers.map((u) => {
-        const roleClean = u.role.replace(/_/g, ' ');
-        let icon = Users;
-        let badgeBg = 'bg-[#4A5D44]/15 dark:bg-[#4A5D44]/40';
-        let badgeText = 'text-[#384A33] dark:text-[#CBD7C7]';
+  // Split 4 core featured accounts vs all other zawiyah branch accounts
+  const featuredAccounts = DEFAULT_ACCOUNTS.map((def) => {
+    const live = dbUsers.find((u) => u.username === def.user);
+    if (live) {
+      return {
+        ...def,
+        nama: live.nama_lengkap || def.nama,
+      };
+    }
+    return def;
+  });
 
-        if (u.role === 'SUPER_ADMIN') {
-          icon = ShieldCheck;
-          badgeBg = 'bg-[#1F2B1D]/10 dark:bg-white/10';
-          badgeText = 'text-[#1F2B1D] dark:text-[#F4EFE6]';
-        } else if (u.role === 'ADMIN_EKSEKUTIF') {
-          icon = Building2;
-        } else if (u.role === 'ADMIN_DIVISI') {
-          icon = Heart;
-          badgeBg = 'bg-rose-500/10 dark:bg-rose-500/20';
-          badgeText = 'text-rose-700 dark:text-rose-300';
-        }
+  const zawiyahAccounts = useMemo(() => {
+    return dbUsers
+      .filter((u) => u.role === 'ADMIN_ZAWIYAH' && u.username !== 'admin_karawang')
+      .map((u) => ({
+        role: 'Ketua Zawiyah',
+        user: u.username,
+        pass: 'admin123',
+        nama: u.nama_lengkap,
+        zawiyahId: u.zawiyah_id || '',
+        email: u.email,
+        badgeBg: 'bg-[#8F6A38]/15 dark:bg-[#8F6A38]/40',
+        badgeText: 'text-[#7A5524] dark:text-[#E8DCC4]',
+        icon: Users,
+      }));
+  }, [dbUsers]);
 
-        return {
-          role: roleClean,
-          user: u.username,
-          pass: 'admin123',
-          nama: u.nama_lengkap,
-          desc: u.email,
-          badgeBg,
-          badgeText,
-          icon,
-        };
-      })
-    : DEFAULT_ACCOUNTS;
+  const filteredZawiyahAccounts = useMemo(() => {
+    if (!zawiyahSearch.trim()) return zawiyahAccounts;
+    const q = zawiyahSearch.toLowerCase();
+    return zawiyahAccounts.filter(
+      (a) =>
+        a.user.toLowerCase().includes(q) ||
+        a.nama.toLowerCase().includes(q) ||
+        a.zawiyahId.toLowerCase().includes(q)
+    );
+  }, [zawiyahAccounts, zawiyahSearch]);
 
   return (
     <div className="relative min-h-screen bg-[#FBF9F5] dark:bg-[#131D12] text-[#243324] dark:text-[#F4EFE6] font-sans flex flex-col justify-between selection:bg-[#E8DCC4] dark:selection:bg-[#384F35] selection:text-[#1F2B1D] dark:selection:text-[#F4EFE6] transition-colors duration-500 overflow-hidden">
