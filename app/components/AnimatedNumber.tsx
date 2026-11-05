@@ -18,22 +18,25 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   prefix = '',
   suffix = '',
   decimals = 0,
-  duration = 1800,
+  duration = 1400,
   className = '',
   locale = 'id-ID',
 }) => {
-  const [displayValue, setDisplayValue] = useState(0);
+  // Initialize with actual value so it never renders a dead '0' during SSR or before animation!
+  const [displayValue, setDisplayValue] = useState(value);
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const isInView = useInView(ref, { once: true, margin: '20px' });
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || hasAnimatedRef.current) return;
+    hasAnimatedRef.current = true;
 
     let startTimestamp: number | null = null;
     const startValue = 0;
     const endValue = value;
 
-    // Spring-like ease out cubic
+    // Smooth cubic ease out
     const easeOutCubic = (x: number): number => {
       return 1 - Math.pow(1 - x, 3);
     };

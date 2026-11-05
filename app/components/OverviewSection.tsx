@@ -21,13 +21,13 @@ export const OverviewSection: React.FC = () => {
   return (
     <section
       id="overview-section"
-      className="relative bg-[#FBF9F5] dark:bg-[#131D12] text-[#243324] dark:text-[#F4EFE6] pt-14 sm:pt-20 pb-16 sm:pb-20 px-4 sm:px-8 lg:px-12 flex flex-col justify-between overflow-hidden transition-colors duration-400"
+      className="relative bg-[#FBF9F5] dark:bg-[#131D12] text-[#243324] dark:text-[#F4EFE6] pt-10 sm:pt-20 pb-12 sm:pb-20 px-4 sm:px-8 lg:px-12 flex flex-col justify-between overflow-hidden transition-colors duration-400"
     >
-      <div className="max-w-6xl mx-auto w-full space-y-12 sm:space-y-16">
-        {/* Visual Showcase Card Container with Strong Parallax */}
+      <div className="max-w-6xl mx-auto w-full space-y-8 sm:space-y-16">
+        {/* Visual Showcase Card Container with Responsive Height & Padding */}
         <div
           ref={cardRef}
-          className="relative h-[480px] sm:h-[600px] lg:h-[700px] w-full rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden shadow-2xl bg-[#1F2B1D]"
+          className="relative h-[360px] sm:h-[520px] lg:h-[660px] w-full rounded-2xl sm:rounded-[3rem] overflow-hidden shadow-2xl bg-[#1F2B1D]"
         >
           <motion.img
             style={{ y: imageY }}
@@ -38,56 +38,56 @@ export const OverviewSection: React.FC = () => {
           />
 
           {/* Subtle bottom gradient overlay for legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B1D]/90 via-[#1F2B1D]/30 to-transparent pointer-events-none z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1F2B1D]/95 via-[#1F2B1D]/40 to-transparent pointer-events-none z-10" />
 
           {/* Overlay Insight / "So What" */}
-          <div className="absolute bottom-8 left-8 right-8 sm:bottom-12 sm:left-12 sm:right-12 z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-[#F4EFE6]">
+          <div className="absolute bottom-5 sm:bottom-10 left-4 sm:left-10 right-4 sm:right-10 z-20 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-6 text-[#F4EFE6]">
             <div className="max-w-3xl">
-              <span className="inline-block text-xs uppercase tracking-widest text-[#E8DCC4] font-semibold mb-2 bg-[#1F2B1D]/60 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/15">
+              <span className="inline-block text-[10px] sm:text-xs uppercase tracking-wider text-[#E8DCC4] font-semibold mb-2 bg-[#1F2B1D]/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/15">
                 Pusat Pembinaan Ruhani & Khidmah Kejamaahan
               </span>
-              <p className="font-display text-2xl sm:text-4xl lg:text-5xl leading-tight font-light text-[#F4EFE6] drop-shadow-md">
+              <p className="font-display text-base sm:text-3xl lg:text-5xl leading-snug sm:leading-tight font-light text-[#F4EFE6] drop-shadow-md">
                 Satu wadah terpadu untuk pembinaan ruhani salik, kemandirian ekonomi, dan khidmat sosial umat.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Quantitative Impact Highlights */}
+        {/* Quantitative Impact Highlights with Immediate Visibility */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          viewport={{ once: true, margin: '0px' }}
+          transition={{ duration: 0.5 }}
           className="w-full"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 pt-4 pb-4 border-t border-[#243324]/10 dark:border-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10 pt-4 pb-4 border-t border-[#243324]/10 dark:border-white/10">
             <div className="space-y-1">
-              <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
+              <div className="font-display text-3xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
                 <AnimatedNumber value={4309} />
               </div>
-              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Total Jamaah Terdata</p>
-              <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
+              <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Total Jamaah Terdata</p>
+              <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] font-light">
                 Data terpusat dan terverifikasi seluruh nusantara
               </p>
             </div>
 
             <div className="space-y-1">
-              <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
+              <div className="font-display text-3xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
                 <AnimatedNumber value={86} />
               </div>
-              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Cabang Zawiyah Aktif</p>
-              <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
+              <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Cabang Zawiyah Aktif</p>
+              <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] font-light">
                 Tersebar di Jawa Barat, DKI, Jawa Tengah, Jatim & Luar Jawa
               </p>
             </div>
 
             <div className="space-y-1">
-              <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
+              <div className="font-display text-3xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
                 <AnimatedNumber value={453} />
               </div>
-              <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Donatur & Peserta Agnia Care</p>
-              <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">
+              <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Donatur & Peserta Agnia Care</p>
+              <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] font-light">
                 Penyaluran filantropi, santunan dhuafa & beasiswa santri
               </p>
             </div>
@@ -97,4 +97,3 @@ export const OverviewSection: React.FC = () => {
     </section>
   );
 };
-

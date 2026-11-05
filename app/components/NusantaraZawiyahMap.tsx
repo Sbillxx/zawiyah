@@ -430,7 +430,7 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{ touchAction: 'none' }}
-      className={`relative w-full h-[500px] sm:h-[620px] lg:h-[700px] bg-[#FBF9F5] dark:bg-[#152014] overflow-hidden select-none transition-colors duration-400 ${
+      className={`relative w-full h-[340px] sm:h-[500px] lg:h-[680px] bg-[#FBF9F5] dark:bg-[#152014] overflow-hidden select-none transition-colors duration-400 ${
         isDragging ? 'cursor-grabbing' : 'cursor-grab'
       }`}
     >
@@ -781,7 +781,7 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-            className="absolute bottom-2 left-2 right-2 sm:bottom-auto sm:top-4 sm:right-4 sm:left-auto sm:w-[350px] max-h-[58%] sm:max-h-[90%] z-30 bg-white/95 dark:bg-[#1C291B]/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-[#243324]/12 dark:border-white/15 shadow-2xl p-4 sm:p-5 overflow-y-auto flex flex-col space-y-3 sm:space-y-4 transition-colors duration-400"
+            className="absolute bottom-2 left-2 right-2 sm:bottom-auto sm:top-4 sm:right-4 sm:left-auto sm:w-[350px] max-h-[75%] sm:max-h-[90%] z-30 bg-white/95 dark:bg-[#1C291B]/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-[#243324]/12 dark:border-white/15 shadow-2xl p-4 sm:p-5 overflow-y-auto flex flex-col space-y-3 sm:space-y-4 transition-colors duration-400"
           >
             {/* Mobile Drag Handle Pill */}
             <div className="w-10 h-1 bg-black/15 dark:bg-white/20 rounded-full mx-auto sm:hidden -mt-1 mb-1 shrink-0" />

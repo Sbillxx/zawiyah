@@ -8,12 +8,16 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const allowOffline = searchParams.get('offline') === 'true';
+    const isGlobal = searchParams.get('global') === 'true';
+    const isScoped = searchParams.get('scoped') === 'true';
 
-    // Check if logged in user has a specific zawiyah assigned
-    const user = await getSessionUser();
+    // Only scope if explicitly requested via parameter or scoped=true for admin
     let targetZawiyahId = searchParams.get('zawiyah_id') || undefined;
-    if (user?.role === 'ADMIN_ZAWIYAH' && user.zawiyah_id) {
-      targetZawiyahId = user.zawiyah_id;
+    if (!isGlobal && isScoped && !targetZawiyahId) {
+      const user = await getSessionUser();
+      if (user?.role === 'ADMIN_ZAWIYAH' && user.zawiyah_id) {
+        targetZawiyahId = user.zawiyah_id;
+      }
     }
 
     const stats = await getDashboardStats(allowOffline, targetZawiyahId);

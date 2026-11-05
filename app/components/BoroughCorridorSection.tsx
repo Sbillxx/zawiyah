@@ -52,7 +52,7 @@ export const BoroughCorridorSection: React.FC = () => {
       }
 
       try {
-        const resStats = await fetch('/api/stats');
+        const resStats = await fetch('/api/stats?global=true');
         const jsonStats = await resStats.json();
         if (jsonStats.success && jsonStats.stats) {
           setDbTotalJamaah(jsonStats.stats.totalJamaah);
