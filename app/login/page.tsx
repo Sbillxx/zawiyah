@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
@@ -92,6 +92,8 @@ export default function LoginPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [dbUsers, setDbUsers] = useState<DbUser[]>([]);
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'fallback'>('checking');
+  const [showAllZawiyahPicker, setShowAllZawiyahPicker] = useState(false);
+  const [zawiyahSearch, setZawiyahSearch] = useState('');
 
   // Fetch users from MySQL database on mount
   useEffect(() => {
@@ -456,19 +458,20 @@ export default function LoginPage() {
             </form>
 
             {/* Quick Demo Accounts Switcher from Database */}
-            <div className="mt-6 pt-5 border-t border-[#243324]/10 dark:border-white/10 space-y-2.5">
+            <div className="mt-6 pt-5 border-t border-[#243324]/10 dark:border-white/10 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold text-[#657351] dark:text-[#A3B59E] uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E]" />
-                  Pilih Akun Cepat ({accountsToDisplay.length})
+                  Pilih Akun Cepat Utama
                 </span>
                 <span className="text-[10px] text-[#A3B59E] dark:text-[#657351] italic">
                   Klik untuk autofill
                 </span>
               </div>
 
+              {/* 4 Core Featured Accounts */}
               <div className="grid grid-cols-2 gap-2">
-                {accountsToDisplay.map((acc) => {
+                {featuredAccounts.map((acc) => {
                   const isCurrent = selectedDemo === acc.user;
                   const Icon = acc.icon;
                   return (
@@ -500,6 +503,85 @@ export default function LoginPage() {
                   );
                 })}
               </div>
+
+              {/* Expandable Accordion for 85 other Zawiyah Branches */}
+              {zawiyahAccounts.length > 0 && (
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllZawiyahPicker(!showAllZawiyahPicker)}
+                    className="w-full py-2 px-3 rounded-xl bg-[#243324]/5 dark:bg-white/5 hover:bg-[#243324]/8 dark:hover:bg-white/10 border border-[#243324]/10 dark:border-white/10 flex items-center justify-between text-xs font-medium text-[#4A5D44] dark:text-[#CBD7C7] transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E]" />
+                      <span>Akun Ketua Zawiyah Lainnya ({zawiyahAccounts.length} Cabang)</span>
+                    </span>
+                    {showAllZawiyahPicker ? (
+                      <ChevronUp className="w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
+                    )}
+                  </button>
+
+                  {showAllZawiyahPicker && (
+                    <div className="mt-2 p-2.5 rounded-2xl bg-white/70 dark:bg-[#182317]/80 border border-[#243324]/15 dark:border-white/15 space-y-2 shadow-inner">
+                      {/* Search box for zawiyah */}
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#657351] dark:text-[#A3B59E]" />
+                        <input
+                          type="text"
+                          value={zawiyahSearch}
+                          onChange={(e) => setZawiyahSearch(e.target.value)}
+                          placeholder="Cari cabang (misal: Salopa, Bandung, ZW-002)..."
+                          className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#243324]/5 dark:bg-white/5 border border-[#243324]/10 dark:border-white/10 text-xs text-[#243324] dark:text-[#F4EFE6] placeholder-[#657351]/60 focus:outline-none focus:border-[#1F2B1D] dark:focus:border-[#68DBA9]"
+                        />
+                      </div>
+
+                      {/* Scrollable list */}
+                      <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1 text-xs">
+                        {filteredZawiyahAccounts.length === 0 ? (
+                          <p className="text-center py-3 text-xs text-[#657351] dark:text-[#A3B59E]">
+                            Tidak ada cabang yang cocok dengan pencarian.
+                          </p>
+                        ) : (
+                          filteredZawiyahAccounts.map((acc) => {
+                            const isCurrent = selectedDemo === acc.user;
+                            return (
+                              <button
+                                key={acc.user}
+                                type="button"
+                                onClick={() => handleSelectAccount(acc)}
+                                className={`w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                                  isCurrent
+                                    ? 'border-emerald-600 bg-emerald-500/10 text-emerald-950 dark:text-emerald-100 font-medium'
+                                    : 'border-transparent hover:bg-[#243324]/5 dark:hover:bg-white/5 text-[#243324] dark:text-[#F4EFE6]'
+                                }`}
+                              >
+                                <div className="truncate flex-1">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-black/5 dark:bg-white/10 text-[#657351] dark:text-[#A3B59E]">
+                                      {acc.zawiyahId}
+                                    </span>
+                                    <span className="font-mono text-xs text-[#1F2B1D] dark:text-[#F4EFE6]">
+                                      @{acc.user}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-[#657351] dark:text-[#A3B59E] truncate mt-0.5">
+                                    {acc.nama}
+                                  </p>
+                                </div>
+                                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 shrink-0 font-medium">
+                                  Pilih →
+                                </span>
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
 
