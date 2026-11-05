@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, BarChart3, Users, Crown, Building, Search, X, ArrowUpRight } from 'lucide-react';
 import { AnimatedNumber } from './AnimatedNumber';
@@ -18,19 +18,65 @@ export const BoroughCorridorSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardContainerRef = useRef<HTMLDivElement>(null);
 
-  // Totals
+  // Live nodes and DB statistics state
+  const [liveNodes, setLiveNodes] = useState<ZawiyahMapNode[]>(ZAWIYAH_NODES);
+  const [dbTotalJamaah, setDbTotalJamaah] = useState<number | null>(null);
+
+  // Fetch live zawiyah and stats from TiDB Cloud database
+  useEffect(() => {
+    async function loadLiveZawiyah() {
+      try {
+        const res = await fetch('/api/zawiyah');
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const dbMap = new Map<string, any>(json.data.map((z: any) => [z.id, z]));
+          setLiveNodes((prev) =>
+            prev.map((node) => {
+              const db = dbMap.get(node.id);
+              if (db) {
+                return {
+                  ...node,
+                  nama: db.nama || node.nama,
+                  tipe: db.tipe || node.tipe,
+                  kota: db.kota || node.kota,
+                  jamaah: typeof db.jamaah === 'number' ? db.jamaah : node.jamaah,
+                  pengurus: db.ketua_zawiyah || db.pengurus || node.pengurus,
+                };
+              }
+              return node;
+            })
+          );
+        }
+      } catch (err) {
+        console.warn('Could not fetch live zawiyah for map:', err);
+      }
+
+      try {
+        const resStats = await fetch('/api/stats');
+        const jsonStats = await resStats.json();
+        if (jsonStats.success && jsonStats.stats) {
+          setDbTotalJamaah(jsonStats.stats.totalJamaah);
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    loadLiveZawiyah();
+  }, []);
+
+  // Totals synced with live database
   const totals = useMemo(() => {
-    const totalJamaah = ZAWIYAH_NODES.reduce((sum, n) => sum + n.jamaah, 0);
-    const totalCabang = ZAWIYAH_NODES.length;
-    const pusatCount = ZAWIYAH_NODES.filter((n) => n.tipe === 'Pusat').length;
-    const utamaCount = ZAWIYAH_NODES.filter((n) => n.tipe === 'Utama').length;
+    const totalJamaah = dbTotalJamaah || liveNodes.reduce((sum, n) => sum + n.jamaah, 0);
+    const totalCabang = liveNodes.length;
+    const pusatCount = liveNodes.filter((n) => n.tipe === 'Pusat').length;
+    const utamaCount = liveNodes.filter((n) => n.tipe === 'Utama').length;
     const donaturCount = REGIONAL_CLUSTERS.reduce((sum, c) => sum + c.donaturAgnia, 0);
     return { totalJamaah, totalCabang, pusatCount, utamaCount, donaturCount };
-  }, []);
+  }, [liveNodes, dbTotalJamaah]);
 
   // Filtered list for list view
   const filteredList = useMemo(() => {
-    let result = ZAWIYAH_NODES;
+    let result = liveNodes;
     if (listTypeFilter !== 'ALL') {
       result = result.filter((n) => n.tipe === listTypeFilter);
     }
@@ -45,7 +91,7 @@ export const BoroughCorridorSection: React.FC = () => {
       );
     }
     return result;
-  }, [listTypeFilter, listSearch]);
+  }, [liveNodes, listTypeFilter, listSearch]);
 
   const scrollToCardTop = () => {
     if (cardContainerRef.current && typeof window !== 'undefined') {
@@ -144,7 +190,7 @@ export const BoroughCorridorSection: React.FC = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <NusantaraZawiyahMap />
+                  <NusantaraZawiyahMap nodes={liveNodes} />
                 </motion.div>
               ) : (
                 <motion.div

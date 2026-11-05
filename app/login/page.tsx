@@ -60,7 +60,7 @@ const DEFAULT_ACCOUNTS = [
     role: 'Admin Zawiyah',
     user: 'admin_karawang',
     pass: 'admin123',
-    nama: 'Ust. Asep Saepudin, S.Pd.I.',
+    nama: 'Ust. Abdul Muyhi',
     desc: 'Ketua Zawiyah Karawang (Kelola 260 Jamaah)',
     badgeBg: 'bg-[#8F6A38]/15 dark:bg-[#8F6A38]/40',
     badgeText: 'text-[#7A5524] dark:text-[#E8DCC4]',

@@ -26,6 +26,7 @@ import {
 } from '../data/indonesiaMapData';
 
 interface NusantaraZawiyahMapProps {
+  nodes?: ZawiyahMapNode[];
   selectedClusterName?: string | null;
   onSelectCluster?: (clusterName: string | null) => void;
   onHoverCluster?: (clusterName: string | null) => void;
@@ -33,10 +34,50 @@ interface NusantaraZawiyahMapProps {
 }
 
 export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
+  nodes,
   onSelectZawiyah,
 }) => {
   const { isDark } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Live connected nodes state (synced with TiDB Cloud database)
+  const [activeNodes, setActiveNodes] = useState<ZawiyahMapNode[]>(nodes || ZAWIYAH_NODES);
+
+  useEffect(() => {
+    if (nodes && nodes.length > 0) {
+      setActiveNodes(nodes);
+    }
+  }, [nodes]);
+
+  // Direct fetch from /api/zawiyah if nodes not supplied from props
+  useEffect(() => {
+    if (!nodes || nodes.length === 0) {
+      fetch('/api/zawiyah')
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            const dbMap = new Map<string, any>(json.data.map((z: any) => [z.id, z]));
+            setActiveNodes((prev) =>
+              prev.map((node) => {
+                const db = dbMap.get(node.id);
+                if (db) {
+                  return {
+                    ...node,
+                    nama: db.nama || node.nama,
+                    tipe: db.tipe || node.tipe,
+                    kota: db.kota || node.kota,
+                    jamaah: typeof db.jamaah === 'number' ? db.jamaah : node.jamaah,
+                    pengurus: db.ketua_zawiyah || db.pengurus || node.pengurus,
+                  };
+                }
+                return node;
+              })
+            );
+          }
+        })
+        .catch(() => {});
+    }
+  }, [nodes]);
 
   // Zoom & Pan state (Archipelago overview down to individual branch zoom)
   const [zoom, setZoom] = useState<number>(1);
@@ -53,6 +94,16 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
   const [selectedNode, setSelectedNode] = useState<ZawiyahMapNode | null>(null);
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
 
+  // Keep selected node updated if live activeNodes changes
+  useEffect(() => {
+    if (selectedNode) {
+      const match = activeNodes.find((n) => n.id === selectedNode.id);
+      if (match && (match.pengurus !== selectedNode.pengurus || match.jamaah !== selectedNode.jamaah)) {
+        setSelectedNode(match);
+      }
+    }
+  }, [activeNodes, selectedNode]);
+
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'Pusat' | 'Utama' | 'Cabang'>('ALL');
@@ -62,9 +113,9 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
     return Math.max(0.18, parseFloat((1 / Math.pow(zoom, 0.72)).toFixed(4)));
   }, [zoom]);
 
-  // Filtered nodes based on search & type
+  // Filtered nodes based on search & type (reading from live connected activeNodes)
   const visibleNodes = useMemo(() => {
-    let result = ZAWIYAH_NODES;
+    let result = activeNodes;
     if (typeFilter !== 'ALL') {
       result = result.filter((n) => n.tipe === typeFilter);
     }
@@ -79,7 +130,7 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
       );
     }
     return result;
-  }, [typeFilter, searchQuery]);
+  }, [activeNodes, typeFilter, searchQuery]);
 
   // Arcs to display (interconnecting Pusat Tasikmalaya to Utama Jakarta & key regions)
   const visibleCorridors = useMemo(() => {
@@ -114,22 +165,22 @@ export const NusantaraZawiyahMap: React.FC<NusantaraZawiyahMapProps> = ({
 
   // Focus handlers for 2 Pillars
   const handleFocusPusat = useCallback(() => {
-    const pusatNode = ZAWIYAH_NODES.find((n) => n.tipe === 'Pusat');
+    const pusatNode = activeNodes.find((n) => n.tipe === 'Pusat');
     if (pusatNode) {
       flyTo(pusatNode.x, pusatNode.y, 4.8);
       setSelectedNode(pusatNode);
       if (onSelectZawiyah) onSelectZawiyah(pusatNode);
     }
-  }, [flyTo, onSelectZawiyah]);
+  }, [activeNodes, flyTo, onSelectZawiyah]);
 
   const handleFocusUtama = useCallback(() => {
-    const utamaNode = ZAWIYAH_NODES.find((n) => n.tipe === 'Utama');
+    const utamaNode = activeNodes.find((n) => n.tipe === 'Utama');
     if (utamaNode) {
       flyTo(utamaNode.x, utamaNode.y, 4.8);
       setSelectedNode(utamaNode);
       if (onSelectZawiyah) onSelectZawiyah(utamaNode);
     }
-  }, [flyTo, onSelectZawiyah]);
+  }, [activeNodes, flyTo, onSelectZawiyah]);
 
   // Reset to full archipelago overview
   const handleResetZoom = useCallback(() => {

@@ -613,12 +613,13 @@ export default function AdminDashboard({
 
                 <div className="mt-4 pt-3 border-t border-[#243324]/6 dark:border-white/6 flex items-center justify-between text-[11px] text-[#657351] dark:text-[#A3B59E]">
                   <span>Status: Aktif</span>
-                  <Link
-                    href="/admin/zawiyah"
-                    className="inline-flex items-center gap-0.5 text-emerald-700 dark:text-emerald-300 hover:underline"
+                  <button
+                    type="button"
+                    onClick={handleOpenEditProfile}
+                    className="inline-flex items-center gap-0.5 text-emerald-700 dark:text-emerald-300 hover:underline cursor-pointer"
                   >
                     Profil Cabang →
-                  </Link>
+                  </button>
                 </div>
               </>
             ) : (

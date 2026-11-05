@@ -64,7 +64,7 @@ export const OverviewSection: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 pt-4 pb-4 border-t border-[#243324]/10 dark:border-white/10">
             <div className="space-y-1">
               <div className="font-display text-4xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={4307} />
+                <AnimatedNumber value={4309} />
               </div>
               <p className="text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Total Jamaah Terdata</p>
               <p className="text-sm text-[#657351] dark:text-[#A3B59E] font-light">

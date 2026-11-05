@@ -160,18 +160,18 @@ export const FALLBACK_ZAWIYAH: Zawiyah[] = [
   { id: 'ZW-023', nama: 'Zawiyah Utama Jakarta', tipe: 'Utama', kota: 'Jakarta', pengurus: 'Ust. H. Ahmad Dahlan', ketua_zawiyah: 'Ust. H. Ahmad Dahlan', no_telp_ketua: '081387654321', jamaah: 20, status: 'Aktif' },
   { id: 'ZW-002', nama: 'Zawiyah Salopa Kabupaten Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Salopa Kabupaten Tasikmalaya)', ketua_zawiyah: 'Ust. Pengurus (Salopa Kabupaten Tasikmalaya)', no_telp_ketua: '0812XXXXXXXX', jamaah: 438, status: 'Aktif' },
   { id: 'ZW-003', nama: 'Zawiyah Tamansari Kota Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Tamansari Kota Tasikmalaya)', ketua_zawiyah: 'Ust. Pengurus (Tamansari Kota Tasikmalaya)', no_telp_ketua: '0812XXXXXXXX', jamaah: 300, status: 'Aktif' },
-  { id: 'ZW-004', nama: 'Zawiyah Karawang', tipe: 'Cabang', kota: 'Karawang', pengurus: 'Ust. Asep Saepudin, S.Pd.I.', ketua_zawiyah: 'Ust. Asep Saepudin, S.Pd.I.', no_telp_ketua: '081512349876', jamaah: 285, status: 'Aktif' },
+  { id: 'ZW-004', nama: 'Zawiyah Karawang', tipe: 'Cabang', kota: 'Karawang', pengurus: 'Ust. Abdul Muyhi', ketua_zawiyah: 'Ust. Abdul Muyhi', no_telp_ketua: '', jamaah: 260, status: 'Aktif' },
   { id: 'ZW-005', nama: 'Zawiyah Purbaratu Kota Tasikmalaya', tipe: 'Cabang', kota: 'Tasikmalaya', pengurus: 'Ust. Pengurus (Purbaratu Kota Tasikmalaya)', ketua_zawiyah: 'Ust. Pengurus (Purbaratu Kota Tasikmalaya)', no_telp_ketua: '0812XXXXXXXX', jamaah: 258, status: 'Aktif' },
 ];
 
 export const FALLBACK_STATS: DashboardStats = {
-  totalJamaah: 4209,
+  totalJamaah: 4309,
   totalZawiyah: 86,
   totalAgniaCare: 384,
   totalLaki: 2150,
   totalPerempuan: 2059,
   totalKoperasi: 512,
-  totalAktif: 4209,
+  totalAktif: 4309,
   topZawiyah: FALLBACK_ZAWIYAH,
   topPekerjaan: [
     { label: 'Wirausaha / Pedagang', count: 1240 },
