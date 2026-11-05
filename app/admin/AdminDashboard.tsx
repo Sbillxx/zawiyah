@@ -29,6 +29,7 @@ import {
   EyeOff,
   X,
   Check,
+  Settings,
 } from 'lucide-react';
 import type { Zawiyah } from '@/lib/data/ssot';
 
@@ -279,9 +280,16 @@ export default function AdminDashboard({
           icon: Users,
           href: '/admin/jamaah',
         },
+        {
+          id: 'pengaturan',
+          label: 'Pengaturan Cabang',
+          icon: Settings,
+          href: '/admin/pengaturan',
+        },
       ]
     : [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard, href: '/admin' },
+        { id: 'zawiyah', label: 'Cabang Zawiyah', icon: Building2, href: '/admin/zawiyah' },
         { id: 'jamaah', label: 'Data Jamaah', icon: Users, href: '/admin/jamaah' },
         {
           id: 'donatur',
@@ -289,7 +297,12 @@ export default function AdminDashboard({
           icon: Heart,
           href: '/admin/donatur',
         },
-        { id: 'zawiyah', label: 'Cabang Zawiyah', icon: Building2, href: '/admin/zawiyah' },
+        {
+          id: 'pengaturan',
+          label: 'Pengaturan',
+          icon: Settings,
+          href: '/admin/pengaturan',
+        },
       ];
 
   const pusatCount = zawiyahList.filter((z) => z.tipe === 'Pusat').length || 1;
@@ -451,49 +464,16 @@ export default function AdminDashboard({
                 </div>
               </div>
 
-              {/* Action Buttons / Options for Ketua Zawiyah */}
-              <div className="flex flex-wrap items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
+              {/* Primary Action Button for Ketua Zawiyah */}
+              <div className="flex items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
                 <Link
                   href="/admin/jamaah"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#85E7B7] hover:bg-[#9BF0C6] text-[#131D12] text-xs font-semibold shadow-md active:scale-95 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#85E7B7] hover:bg-[#9BF0C6] text-[#131D12] text-xs sm:text-sm font-semibold shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer group"
                 >
                   <Users className="w-4 h-4" />
                   <span>Kelola {stats.totalJamaah} Jamaah Cabang</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
-
-                {/* Option 1: Profil & Kontak Cabang */}
-                <button
-                  type="button"
-                  onClick={handleOpenEditProfile}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#F4EFE6] border border-white/15 text-xs font-medium transition-all active:scale-95 cursor-pointer"
-                  title="Kelola Profil & Kontak Resmi Cabang"
-                >
-                  <Building2 className="w-4 h-4 text-[#85E7B7]" />
-                  <span>Profil & Kontak</span>
-                </button>
-
-                {/* Option 2: Atur Akun & Sandi */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCredsForm({
-                      currentPassword: '',
-                      newPassword: '',
-                      confirmPassword: '',
-                      newUsername: currentUser?.username || '',
-                      newNoTelp: activeZawiyah?.no_telp_ketua || '',
-                    });
-                    setCredsError('');
-                    setCredsSuccess('');
-                    setIsCredsModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#F4EFE6] border border-white/15 text-xs font-medium transition-all active:scale-95 cursor-pointer"
-                  title="Atur Username & Kata Sandi Akun"
-                >
-                  <KeyRound className="w-4 h-4 text-[#85E7B7]" />
-                  <span>Atur Akun & Sandi</span>
-                </button>
               </div>
             </div>
           </div>
@@ -997,62 +977,27 @@ export default function AdminDashboard({
                   <ArrowRight className="w-4 h-4 text-[#657351] dark:text-[#A3B59E] group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                {/* Profil & Kontak Cabang (Modal untuk Ketua Zawiyah) ATAU Manajemen Cabang (Link untuk Super Admin) */}
+                {/* Link ke Halaman Pengaturan Resmi Cabang */}
                 {isZawiyahAdmin ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={handleOpenEditProfile}
-                      className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-xl border border-[#243324]/10 dark:border-white/10 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
-                          <Building2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-[#243324] dark:text-[#F4EFE6]">
-                            Kelola Profil & Kontak Cabang
-                          </p>
-                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">
-                            Ketua: {activeZawiyah?.ketua_zawiyah || activeZawiyah?.pengurus || currentUser?.nama_lengkap}
-                          </p>
-                        </div>
+                  <Link
+                    href="/admin/pengaturan"
+                    className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl border border-[#243324]/10 dark:border-white/10 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+                        <Settings className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                       </div>
-                      <ArrowRight className="w-4 h-4 text-[#657351] dark:text-[#A3B59E] group-hover:translate-x-1 transition-transform" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCredsForm({
-                          currentPassword: '',
-                          newPassword: '',
-                          confirmPassword: '',
-                          newUsername: currentUser?.username || '',
-                          newNoTelp: activeZawiyah?.no_telp_ketua || '',
-                        });
-                        setCredsError('');
-                        setCredsSuccess('');
-                        setIsCredsModalOpen(true);
-                      }}
-                      className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-xl border border-[#243324]/10 dark:border-white/10 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group cursor-pointer text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
-                          <KeyRound className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-[#243324] dark:text-[#F4EFE6]">
-                            Atur Akun & Kata Sandi
-                          </p>
-                          <p className="text-xs text-[#657351] dark:text-[#A3B59E]">
-                            Username: @{currentUser?.username || 'admin'}
-                          </p>
-                        </div>
+                      <div>
+                        <p className="font-medium text-sm text-[#243324] dark:text-[#F4EFE6]">
+                          Pengaturan Profil & Sandi Cabang
+                        </p>
+                        <p className="text-xs text-[#657351] dark:text-[#A3B59E]">
+                          Kelola profil zawiyah, kontak WhatsApp, dan kata sandi akun
+                        </p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-[#657351] dark:text-[#A3B59E] group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-[#657351] dark:text-[#A3B59E] group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 ) : (
                   <Link
                     href="/admin/zawiyah"

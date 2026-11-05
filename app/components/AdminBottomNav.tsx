@@ -10,11 +10,6 @@ import {
   Heart,
   LogOut,
   Settings,
-  KeyRound,
-  Eye,
-  EyeOff,
-  AlertTriangle,
-  CheckCircle2,
   X,
 } from 'lucide-react';
 
@@ -29,21 +24,6 @@ export function AdminBottomNav({ initialUser }: Props) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // Settings / Atur Akun & Sandi Modal State
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [credsForm, setCredsForm] = useState({
-    newUsername: '',
-    newNoTelp: '',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [credsLoading, setCredsLoading] = useState(false);
-  const [credsError, setCredsError] = useState('');
-  const [credsSuccess, setCredsSuccess] = useState('');
-
   // Fetch session if not provided by SSR
   useEffect(() => {
     if (!initialUser) {
@@ -56,97 +36,9 @@ export function AdminBottomNav({ initialUser }: Props) {
         })
         .catch(() => {});
     }
-
-    // Listen for custom trigger to open settings modal from other components
-    const handleOpenSettingsEvent = (e: any) => {
-      const details = e?.detail || {};
-      setCredsForm((prev) => ({
-        ...prev,
-        newUsername: details.username || currentUser?.username || '',
-        newNoTelp: details.noTelp || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      }));
-      setCredsError('');
-      setCredsSuccess('');
-      setIsSettingsOpen(true);
-    };
-
-    window.addEventListener('open-admin-settings', handleOpenSettingsEvent);
-    return () => window.removeEventListener('open-admin-settings', handleOpenSettingsEvent);
-  }, [initialUser, currentUser]);
+  }, [initialUser]);
 
   const isZawiyahAdmin = currentUser?.role === 'ADMIN_ZAWIYAH';
-
-  const handleOpenSettingsModal = () => {
-    setCredsForm({
-      newUsername: currentUser?.username || '',
-      newNoTelp: '',
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    });
-    setCredsError('');
-    setCredsSuccess('');
-    setIsSettingsOpen(true);
-  };
-
-  const handleSaveCredentials = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCredsError('');
-    setCredsSuccess('');
-
-    if (!credsForm.currentPassword) {
-      setCredsError('Verifikasi kata sandi saat ini wajib diisi.');
-      return;
-    }
-
-    if (credsForm.newPassword) {
-      if (credsForm.newPassword.length < 6) {
-        setCredsError('Kata sandi baru minimal 6 karakter.');
-        return;
-      }
-      if (credsForm.newPassword !== credsForm.confirmPassword) {
-        setCredsError('Konfirmasi kata sandi baru tidak cocok.');
-        return;
-      }
-    }
-
-    setCredsLoading(true);
-    try {
-      const res = await fetch('/api/auth/change-credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentPassword: credsForm.currentPassword,
-          newPassword: credsForm.newPassword || undefined,
-          newUsername: credsForm.newUsername || undefined,
-          newNoTelp: credsForm.newNoTelp || undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Gagal memperbarui kredensial.');
-      }
-
-      setCredsSuccess('Kredensial dan akun berhasil diperbarui!');
-      if (credsForm.newUsername) {
-        setCurrentUser((prev: any) => ({
-          ...prev,
-          username: credsForm.newUsername.toLowerCase(),
-        }));
-      }
-      setTimeout(() => {
-        setIsSettingsOpen(false);
-        setCredsSuccess('');
-      }, 1500);
-    } catch (err: any) {
-      setCredsError(err.message || 'Terjadi kesalahan sistem.');
-    } finally {
-      setCredsLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -163,8 +55,8 @@ export function AdminBottomNav({ initialUser }: Props) {
   };
 
   // Nav items based on role
-  // Ketua Zawiyah: Dashboard, Jamaah, Pengaturan (modal), Keluar
-  // Super Admin: Dashboard, Zawiyah, Jamaah, Donatur, Keluar
+  // Ketua Zawiyah: Dashboard, Jamaah, Pengaturan, Keluar
+  // Super Admin: Dashboard, Zawiyah, Jamaah, Donatur, Pengaturan, Keluar
   const navItems = isZawiyahAdmin
     ? [
         {
@@ -180,6 +72,13 @@ export function AdminBottomNav({ initialUser }: Props) {
           href: '/admin/jamaah',
           icon: Users,
           isActive: pathname.startsWith('/admin/jamaah'),
+        },
+        {
+          id: 'pengaturan',
+          label: 'Pengaturan',
+          href: '/admin/pengaturan',
+          icon: Settings,
+          isActive: pathname.startsWith('/admin/pengaturan'),
         },
       ]
     : [
@@ -210,6 +109,13 @@ export function AdminBottomNav({ initialUser }: Props) {
           href: '/admin/donatur',
           icon: Heart,
           isActive: pathname.startsWith('/admin/donatur'),
+        },
+        {
+          id: 'pengaturan',
+          label: 'Pengaturan',
+          href: '/admin/pengaturan',
+          icon: Settings,
+          isActive: pathname.startsWith('/admin/pengaturan'),
         },
       ];
 
@@ -261,33 +167,6 @@ export function AdminBottomNav({ initialUser }: Props) {
                 </Link>
               );
             })}
-
-            {/* Menu Pengaturan / Atur Akun & Sandi untuk Ketua Zawiyah */}
-            {isZawiyahAdmin && (
-              <button
-                type="button"
-                onClick={handleOpenSettingsModal}
-                aria-label="Atur Akun & Sandi"
-                className={`flex-1 min-w-[56px] flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all duration-200 cursor-pointer group ${
-                  isSettingsOpen
-                    ? 'text-emerald-700 dark:text-emerald-300'
-                    : 'text-[#657351] dark:text-[#A3B59E] hover:text-emerald-700 dark:hover:text-emerald-300'
-                }`}
-              >
-                <div
-                  className={`w-10 h-7 flex items-center justify-center rounded-xl transition-all ${
-                    isSettingsOpen
-                      ? 'bg-emerald-500/20'
-                      : 'group-hover:bg-emerald-500/10'
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                </div>
-                <span className="text-[10px] mt-0.5 font-medium tracking-tight">
-                  Pengaturan
-                </span>
-              </button>
-            )}
 
             {/* Logout / Keluar button */}
             <button
@@ -351,172 +230,6 @@ export function AdminBottomNav({ initialUser }: Props) {
                 <span>{isLoggingOut ? 'Memproses...' : 'Ya, Keluar'}</span>
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: Pengaturan Akun & Sandi Ketua Zawiyah */}
-      {isSettingsOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
-          onClick={() => !credsLoading && setIsSettingsOpen(false)}
-        >
-          <div
-            className="rounded-3xl p-6 sm:p-7 max-w-md w-full space-y-5 shadow-2xl border border-[#243324]/15 dark:border-white/20 bg-[#FBF9F5] dark:bg-[#1E2E1D]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between border-b border-[#243324]/10 dark:border-white/10 pb-4">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-xs font-medium mb-1">
-                  <KeyRound className="w-3.5 h-3.5" />
-                  <span>Keamanan Akun</span>
-                </div>
-                <h2 className="font-display text-xl text-[#1F2B1D] dark:text-[#F4EFE6] font-medium">
-                  Atur Akun & Sandi
-                </h2>
-                <p className="text-xs text-[#657351] dark:text-[#A3B59E] mt-0.5">
-                  Pengaturan akun login dan kontak WhatsApp Ketua Zawiyah.
-                </p>
-              </div>
-              <button
-                disabled={credsLoading}
-                onClick={() => setIsSettingsOpen(false)}
-                className="p-1.5 rounded-xl hover:bg-[#243324]/8 dark:hover:bg-white/8 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                <X className="w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
-              </button>
-            </div>
-
-            {credsError && (
-              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 flex items-center gap-2 text-rose-700 dark:text-rose-300 text-xs">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{credsError}</span>
-              </div>
-            )}
-
-            {credsSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 flex items-center gap-2 text-emerald-700 dark:text-emerald-300 text-xs">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{credsSuccess}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveCredentials} className="space-y-4 text-xs">
-              {/* Username Login */}
-              <div className="space-y-1">
-                <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">
-                  Username Login (huruf kecil)
-                </label>
-                <input
-                  type="text"
-                  value={credsForm.newUsername}
-                  onChange={(e) => setCredsForm({ ...credsForm, newUsername: e.target.value.toLowerCase() })}
-                  placeholder="Contoh: asep.radiana"
-                  className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 font-mono text-xs"
-                />
-              </div>
-
-              {/* Nomor WhatsApp Ketua */}
-              <div className="space-y-1">
-                <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">
-                  Nomor WhatsApp Ketua
-                </label>
-                <input
-                  type="tel"
-                  value={credsForm.newNoTelp}
-                  onChange={(e) => setCredsForm({ ...credsForm, newNoTelp: e.target.value })}
-                  placeholder="Contoh: 08123456789"
-                  className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 font-mono text-xs"
-                />
-              </div>
-
-              {/* Verifikasi Kata Sandi Saat Ini */}
-              <div className="pt-2 border-t border-[#243324]/10 dark:border-white/10 space-y-3">
-                <div className="space-y-1">
-                  <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">
-                    Verifikasi Kata Sandi Saat Ini <span className="text-rose-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showOldPassword ? 'text' : 'password'}
-                      required
-                      value={credsForm.currentPassword}
-                      onChange={(e) => setCredsForm({ ...credsForm, currentPassword: e.target.value })}
-                      placeholder="Masukkan kata sandi saat ini"
-                      className="w-full pl-3 pr-9 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 text-xs"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowOldPassword(!showOldPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#657351] dark:text-[#A3B59E] hover:text-[#1F2B1D] dark:hover:text-[#F4EFE6] cursor-pointer"
-                    >
-                      {showOldPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-[#657351] dark:text-[#A3B59E]">
-                    Kata sandi bawaan default adalah: <code className="font-mono bg-black/5 dark:bg-white/10 px-1 py-0.5 rounded">bismillah123</code>
-                  </p>
-                </div>
-
-                {/* Kata Sandi Baru */}
-                <div className="space-y-1">
-                  <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">
-                    Kata Sandi Baru (Opsional)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? 'text' : 'password'}
-                      value={credsForm.newPassword}
-                      onChange={(e) => setCredsForm({ ...credsForm, newPassword: e.target.value })}
-                      placeholder="Minimal 6 karakter (kosongkan jika tak ingin ganti)"
-                      className="w-full pl-3 pr-9 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 text-xs"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#657351] dark:text-[#A3B59E] hover:text-[#1F2B1D] dark:hover:text-[#F4EFE6] cursor-pointer"
-                    >
-                      {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Konfirmasi Kata Sandi Baru */}
-                {credsForm.newPassword && (
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">
-                      Konfirmasi Kata Sandi Baru <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={credsForm.confirmPassword}
-                      onChange={(e) => setCredsForm({ ...credsForm, confirmPassword: e.target.value })}
-                      placeholder="Ketik ulang kata sandi baru"
-                      className="w-full px-3 py-2 border border-[#243324]/15 dark:border-white/15 rounded-xl bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] focus:outline-none focus:border-[#1F2B1D] dark:focus:border-white/40 text-xs"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-[#243324]/10 dark:border-white/10">
-                <button
-                  type="button"
-                  disabled={credsLoading}
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-[#243324]/15 dark:border-white/15 text-xs text-[#657351] dark:text-[#A3B59E] hover:bg-black/5 dark:hover:bg-white/5 transition-all cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={credsLoading}
-                  className="flex items-center gap-2 px-5 py-2 bg-[#1F2B1D] dark:bg-[#85E7B7] text-[#F4EFE6] dark:text-[#131D12] text-xs font-semibold rounded-xl hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 cursor-pointer shadow-xs"
-                >
-                  {credsLoading ? 'Menyimpan...' : 'Simpan Kredensial'}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
