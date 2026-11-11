@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 
 const SECRET_KEY = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET || 'zawiyah-super-secret-key-idrisiyyah-2025-v1'
+  process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'zawiyah-super-secret-key-idrisiyyah-2025-v1'
 );
 
 export interface SessionUser {
