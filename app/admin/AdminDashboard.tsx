@@ -60,12 +60,13 @@ interface Props {
 }
 
 export default function AdminDashboard({
-  stats,
+  stats: initialStats,
   zawiyahList = [],
   currentUser: initialUser,
   isOfflineMode = false,
 }: Props) {
   const router = useRouter();
+  const [stats, setStats] = useState<Stats>(initialStats);
   const [currentUser, setCurrentUser] = useState<any>(initialUser || null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -92,15 +93,26 @@ export default function AdminDashboard({
         const data = await res.json();
         if (data.success && data.user) {
           setCurrentUser(data.user);
+          if (data.user.role === 'ADMIN_ZAWIYAH' && data.user.zawiyah_id && !stats.isScopedZawiyah) {
+            try {
+              const sRes = await fetch(`/api/stats?zawiyah_id=${data.user.zawiyah_id}`);
+              const sData = await sRes.json();
+              if (sData.success && sData.stats) {
+                setStats(sData.stats);
+              }
+            } catch (sErr) {
+              console.warn('Cannot fetch scoped stats:', sErr);
+            }
+          }
         }
       } catch (err) {
         // Not authenticated
       }
     }
-    if (!initialUser) {
+    if (!initialUser || (!stats.isScopedZawiyah && currentUser?.role === 'ADMIN_ZAWIYAH')) {
       checkAuth();
     }
-  }, [initialUser]);
+  }, [initialUser, stats.isScopedZawiyah, currentUser?.role, currentUser?.zawiyah_id]);
 
   const isZawiyahAdmin =
     currentUser?.role === 'ADMIN_ZAWIYAH' || stats.isScopedZawiyah === true;
@@ -866,8 +878,8 @@ export default function AdminDashboard({
                   </Link>
                 </div>
                 <div className="space-y-4">
-                  {stats.topZawiyah.map((z, i) => {
-                    const maxVal = stats.topZawiyah[0].jamaah || 1;
+                  {stats.topZawiyah.map((z: any, i: number) => {
+                    const maxVal = stats.topZawiyah[0]?.jamaah || 1;
                     const pct = Math.round((z.jamaah / maxVal) * 100);
                     return (
                       <div key={z.id}>
@@ -918,7 +930,7 @@ export default function AdminDashboard({
             </div>
             <div className="space-y-3">
               {stats.topPekerjaan.length > 0 ? (
-                stats.topPekerjaan.map((p, i) => {
+                stats.topPekerjaan.map((p: any, i: number) => {
                   const pct = Math.round((p.count / (stats.totalJamaah || 1)) * 100);
                   const colors = ['bg-[#1F2B1D]', 'bg-[#3B4D36]', 'bg-[#4A5D44]', 'bg-[#657351]', 'bg-[#8A9E80]', 'bg-[#A3B59E]'];
                   return (

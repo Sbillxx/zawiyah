@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -55,7 +55,8 @@ const INITIAL_FORM: Partial<Jamaah> = {
   status: 'Aktif',
 };
 
-export default function AdminJamaah({ jamaahList: initialList, zawiyahList, currentUser }: Props) {
+export default function AdminJamaah({ jamaahList: initialList, zawiyahList, currentUser: initialUser }: Props) {
+  const [currentUser, setCurrentUser] = useState<any>(initialUser || null);
   const isZawiyahAdmin = currentUser?.role === 'ADMIN_ZAWIYAH';
   const assignedZawiyah = zawiyahList.find((z) => z.id === currentUser?.zawiyah_id) || (isZawiyahAdmin ? zawiyahList.find((z) => z.id === 'ZW-004') : null);
 
@@ -67,6 +68,31 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList, curr
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [selected, setSelected] = useState<Jamaah | null>(null);
+
+  // Sync session and scoped jamaah on mount
+  useEffect(() => {
+    async function checkAndScope() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.success && data.user) {
+          setCurrentUser(data.user);
+          if (data.user.role === 'ADMIN_ZAWIYAH' && data.user.zawiyah_id) {
+            const jRes = await fetch(`/api/jamaah?zawiyah_id=${data.user.zawiyah_id}`);
+            const jData = await jRes.json();
+            if (jData.success && Array.isArray(jData.data)) {
+              setList(jData.data);
+            }
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    if (!initialUser || (currentUser?.role === 'ADMIN_ZAWIYAH' && list.length > 2000)) {
+      checkAndScope();
+    }
+  }, [initialUser, currentUser?.role]);
 
   // Modals state
   const [isAddOpen, setIsAddOpen] = useState(false);

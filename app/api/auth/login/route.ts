@@ -3,10 +3,7 @@ import { findUserForAuth, recordAuditLog } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { SignJWT } from 'jose';
-
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET || 'zawiyah-super-secret-key-idrisiyyah-2025-v1'
-);
+import { SECRET_KEY } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
