@@ -327,39 +327,39 @@ export default function AdminDashboard({
     <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#131D12] font-sans">
       {/* Top Bar - Clean, uncrowded, responsive */}
       <header className="sticky top-0 z-40 border-b border-[#243324]/10 dark:border-white/10 bg-[#FBF9F5]/90 dark:bg-[#131D12]/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 md:gap-4">
           {/* Brand & Desktop Navigation */}
-          <div className="flex items-center gap-3 sm:gap-5">
-            <Link href="/" className="flex items-center gap-2 group">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <Link href="/" className="flex items-center gap-2 group shrink-0">
               <div className="w-8 h-8 rounded-xl bg-[#1F2B1D] dark:bg-[#344732] flex items-center justify-center shadow-xs">
                 <span className="text-[#F4EFE6] text-xs font-bold font-display">Z</span>
               </div>
-              <div>
-                <p className="text-xs font-bold text-[#243324] dark:text-[#F4EFE6] leading-none">SAJADA</p>
-                <p className="text-[10px] text-[#657351] dark:text-[#A3B59E] leading-none">
+              <div className="hidden sm:block">
+                <p className="text-xs font-bold text-[#243324] dark:text-[#F4EFE6] leading-none whitespace-nowrap">SAJADA</p>
+                <p className="text-[10px] text-[#657351] dark:text-[#A3B59E] leading-none whitespace-nowrap mt-0.5">
                   {isZawiyahAdmin ? 'Portal Ketua Zawiyah' : 'Portal Admin'}
                 </p>
               </div>
             </Link>
 
-            <div className="hidden md:block w-px h-6 bg-[#243324]/10 dark:border-white/10" />
+            <div className="hidden md:block w-px h-6 bg-[#243324]/10 dark:bg-white/10 shrink-0" />
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar py-1">
               {navItems.map((item) => {
                 const isItemActive = item.id === 'overview';
                 return (
                   <Link
                     key={item.id}
                     href={item.href}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg text-xs xl:text-sm font-medium whitespace-nowrap shrink-0 transition-all duration-200 ${
                       isItemActive
                         ? 'bg-[#1F2B1D] text-[#F4EFE6] dark:bg-[#344732]'
                         : 'text-[#4A5D44] dark:text-[#A3B59E] hover:bg-[#243324]/8 dark:hover:bg-white/8 hover:text-[#243324] dark:hover:text-[#F4EFE6]'
                     }`}
                   >
-                    <item.icon className="w-3.5 h-3.5" />
-                    <span>{item.label}</span>
+                    <item.icon className="w-3.5 h-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">{item.label}</span>
                   </Link>
                 );
               })}
@@ -367,16 +367,26 @@ export default function AdminDashboard({
           </div>
 
           {/* Right Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Current user badge on tablet / desktop */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* Current user badge on xl screens (full) */}
             {currentUser && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-xl bg-white/70 dark:bg-white/5 border border-[#243324]/10 dark:border-white/10 text-xs">
-                <UserCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span className="font-medium text-[#1F2B1D] dark:text-[#F4EFE6] max-w-[150px] truncate">
+              <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-white/5 border border-[#243324]/10 dark:border-white/10 text-xs shrink-0 whitespace-nowrap">
+                <UserCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="font-medium text-[#1F2B1D] dark:text-[#F4EFE6] max-w-[140px] truncate whitespace-nowrap">
                   {currentUser.nama_lengkap}
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium">
+                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium whitespace-nowrap">
                   {currentUser.role === 'ADMIN_ZAWIYAH' ? 'Ketua Zawiyah' : currentUser.role}
+                </span>
+              </div>
+            )}
+
+            {/* Current user compact badge on lg screens */}
+            {currentUser && (
+              <div className="hidden lg:flex xl:hidden items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/70 dark:bg-white/5 border border-[#243324]/10 dark:border-white/10 text-xs shrink-0 whitespace-nowrap">
+                <UserCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-medium whitespace-nowrap">
+                  {currentUser.role === 'ADMIN_ZAWIYAH' ? 'Ketua' : 'Super Admin'}
                 </span>
               </div>
             )}
@@ -386,16 +396,16 @@ export default function AdminDashboard({
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="hidden sm:flex items-center gap-1.5 text-xs text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-[#243324]/5 dark:hover:bg-white/5 border border-transparent hover:border-[#243324]/10 cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 text-xs text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-[#243324]/5 dark:hover:bg-white/5 border border-transparent hover:border-[#243324]/10 cursor-pointer shrink-0 whitespace-nowrap"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>{isLoggingOut ? 'Keluar...' : 'Ganti Akun'}</span>
+              <LogOut className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">{isLoggingOut ? 'Keluar...' : 'Ganti Akun'}</span>
             </button>
 
             {/* Link to public front page */}
             <Link
               href="/"
-              className="text-xs font-medium text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
+              className="text-xs font-medium text-[#657351] dark:text-[#A3B59E] hover:text-[#243324] dark:hover:text-[#F4EFE6] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 shrink-0 whitespace-nowrap"
             >
               ← Beranda
             </Link>
