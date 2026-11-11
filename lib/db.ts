@@ -305,17 +305,29 @@ export async function getAllZawiyah(allowFallback = false): Promise<Zawiyah[]> {
   try {
     const [rows]: any = await pool.query(`
       SELECT
-        id,
-        nama,
-        tipe,
-        kota,
-        pengurus,
-        COALESCE(ketua_zawiyah, pengurus, '') as ketua_zawiyah,
-        COALESCE(ketua_jamaah_id, '') as ketua_jamaah_id,
-        COALESCE(no_telp_ketua, '') as no_telp_ketua,
-        CAST(jamaah AS UNSIGNED) as jamaah,
+        z.id,
+        z.nama,
+        z.tipe,
+        z.kota,
+        z.pengurus,
+        COALESCE(z.ketua_zawiyah, z.pengurus, '') as ketua_zawiyah,
+        COALESCE(z.ketua_jamaah_id, '') as ketua_jamaah_id,
+        COALESCE(z.no_telp_ketua, '') as no_telp_ketua,
+        COALESCE(j_live.total, CAST(z.jamaah AS UNSIGNED), 0) as jamaah,
         'Aktif' as status
-      FROM zawiyah
+      FROM zawiyah z
+      LEFT JOIN (
+        SELECT
+          z_sub.id,
+          COUNT(j_sub.id) as total
+        FROM zawiyah z_sub
+        JOIN jamaah j_sub ON (
+          j_sub.zawiyah_id = z_sub.id
+          OR j_sub.zawiyah_nama = z_sub.nama
+          OR (COALESCE(j_sub.zawiyah_id, '') = '' AND j_sub.zawiyah_nama LIKE CONCAT('%', z_sub.nama, '%'))
+        )
+        GROUP BY z_sub.id
+      ) j_live ON z.id = j_live.id
       ORDER BY jamaah DESC
     `);
     return rows as Zawiyah[];
@@ -414,16 +426,28 @@ export async function getDashboardStats(allowFallback = false, zawiyahId?: strin
 
     const [topZawiyahRows]: any = await pool.query(`
       SELECT
-        id,
-        nama,
-        tipe,
-        kota,
-        pengurus,
-        COALESCE(ketua_zawiyah, pengurus, '') as ketua_zawiyah,
-        COALESCE(no_telp_ketua, '') as no_telp_ketua,
-        CAST(jamaah AS UNSIGNED) as jamaah,
+        z.id,
+        z.nama,
+        z.tipe,
+        z.kota,
+        z.pengurus,
+        COALESCE(z.ketua_zawiyah, z.pengurus, '') as ketua_zawiyah,
+        COALESCE(z.no_telp_ketua, '') as no_telp_ketua,
+        COALESCE(j_live.total, CAST(z.jamaah AS UNSIGNED), 0) as jamaah,
         'Aktif' as status
-      FROM zawiyah
+      FROM zawiyah z
+      LEFT JOIN (
+        SELECT
+          z_sub.id,
+          COUNT(j_sub.id) as total
+        FROM zawiyah z_sub
+        JOIN jamaah j_sub ON (
+          j_sub.zawiyah_id = z_sub.id
+          OR j_sub.zawiyah_nama = z_sub.nama
+          OR (COALESCE(j_sub.zawiyah_id, '') = '' AND j_sub.zawiyah_nama LIKE CONCAT('%', z_sub.nama, '%'))
+        )
+        GROUP BY z_sub.id
+      ) j_live ON z.id = j_live.id
       ORDER BY jamaah DESC
       LIMIT 5
     `);
