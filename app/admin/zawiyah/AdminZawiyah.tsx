@@ -120,7 +120,7 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
       const res = await fetch(`/api/jamaah/search?q=${encodeURIComponent(zawiyah.kota)}&limit=10`);
       const data = await res.json();
       if (data.success && data.data) {
-        setSearchJamaahResults(data.data);
+        setSearchJamaahResults(data.data.filter((j: any) => j.nama && j.nama.trim()));
       }
     } catch {
       // ignore
@@ -138,7 +138,7 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
       const res = await fetch(`/api/jamaah/search?q=${encodeURIComponent(queryText.trim())}&limit=20`);
       const data = await res.json();
       if (data.success && data.data) {
-        setSearchJamaahResults(data.data);
+        setSearchJamaahResults(data.data.filter((j: any) => j.nama && j.nama.trim()));
       }
     } catch (err: any) {
       console.warn('Search jamaah error:', err);
@@ -1058,7 +1058,7 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
                             )}
                           </div>
                           <p className="font-semibold text-sm text-[#1F2B1D] dark:text-[#F4EFE6] truncate mt-0.5">
-                            {j.nama}
+                            {j.nama || '(Nama Belum Diisi)'}
                           </p>
                           <p className="text-[11px] text-[#657351] dark:text-[#A3B59E] truncate">
                             Asal: {j.zawiyah || 'Pusat'} &bull; Telp: {j.telepon || '-'} &bull; Profesi: {j.pekerjaan || '-'}

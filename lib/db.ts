@@ -1112,7 +1112,8 @@ export async function searchJamaahForKetua(query: string, limit = 20): Promise<J
         COALESCE(is_ketua_zawiyah, 0) as is_ketua_zawiyah,
         COALESCE(ketua_di_zawiyah_nama, '') as ketua_di_zawiyah_nama
       FROM jamaah
-      WHERE nama LIKE ? OR id LIKE ? OR telepon LIKE ? OR alamat LIKE ?
+      WHERE (nama LIKE ? OR id LIKE ? OR telepon LIKE ? OR alamat LIKE ?)
+        AND nama IS NOT NULL AND TRIM(nama) != ''
       ORDER BY nama ASC
       LIMIT ?`,
       [q, q, q, q, limit]
