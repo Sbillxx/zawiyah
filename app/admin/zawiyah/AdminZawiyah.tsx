@@ -173,12 +173,12 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
         prev.map((z) =>
           z.id === assignZawiyah.id
             ? {
-              ...z,
-              ketua_zawiyah: jamaah.nama,
-              ketua_jamaah_id: jamaah.id,
-              no_telp_ketua: jamaah.telepon || z.no_telp_ketua,
-              pengurus: jamaah.nama,
-            }
+                ...z,
+                ketua_zawiyah: jamaah.nama,
+                ketua_jamaah_id: jamaah.id,
+                no_telp_ketua: jamaah.telepon || z.no_telp_ketua,
+                pengurus: jamaah.nama,
+              }
             : z
         )
       );
@@ -358,7 +358,7 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
         </div>
       </header>
 
-      {/* Main Content */}
+{/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12 space-y-6">
         <div className="flex flex-wrap gap-4">
           <div className="glass-panel rounded-xl px-4 py-2.5 flex items-center gap-2">
@@ -413,10 +413,11 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
               <select
                 value={filterTipe}
                 onChange={(e) => setFilterTipe(e.target.value)}
-                className={`w-full pl-8 pr-7 py-2 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${filterTipe !== 'ALL'
+                className={`w-full pl-8 pr-7 py-2 text-xs rounded-xl border appearance-none transition-all cursor-pointer font-medium focus:outline-none truncate ${
+                  filterTipe !== 'ALL'
                     ? 'bg-[#1F2B1D]/10 dark:bg-[#85E7B7]/15 border-[#1F2B1D]/30 dark:border-[#85E7B7]/30 text-[#1F2B1D] dark:text-[#85E7B7]'
                     : 'bg-white/70 dark:bg-black/20 border-[#243324]/10 dark:border-white/10 text-[#243324] dark:text-[#F4EFE6] hover:border-[#243324]/25'
-                  }`}
+                }`}
               >
                 <option value="ALL">Semua Tipe</option>
                 {uniqueTipe.map((t) => (
