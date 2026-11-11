@@ -99,11 +99,11 @@ export default function AdminZawiyah({ zawiyahList: initialList, currentUser }: 
         return matchSearch && matchTipe;
       })
       .sort((a, b) =>
-        sortBy === 'jamaah' ? b.jamaah - a.jamaah : a.nama.localeCompare(b.nama)
+        sortBy === 'jamaah' ? Number(b.jamaah || 0) - Number(a.jamaah || 0) : a.nama.localeCompare(b.nama)
       );
   }, [search, filterTipe, sortBy, list]);
 
-  const totalJamaahFiltered = filtered.reduce((acc, z) => acc + z.jamaah, 0);
+  const totalJamaahFiltered = filtered.reduce((acc, z) => acc + Number(z.jamaah || 0), 0);
 
   // Open Assign Ketua Modal
   const handleOpenAssignModal = async (zawiyah: Zawiyah) => {

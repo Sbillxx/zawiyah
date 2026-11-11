@@ -330,7 +330,10 @@ export async function getAllZawiyah(allowFallback = false): Promise<Zawiyah[]> {
       ) j_live ON z.id = j_live.id
       ORDER BY jamaah DESC
     `);
-    return rows as Zawiyah[];
+    return (rows || []).map((r: any) => ({
+      ...r,
+      jamaah: Number(r.jamaah) || 0,
+    })) as Zawiyah[];
   } catch (error: any) {
     if (allowFallback) {
       console.warn('MySQL unavailable, returning fallback zawiyah list');
@@ -493,7 +496,10 @@ export async function getDashboardStats(allowFallback = false, zawiyahId?: strin
       totalKoperasi,
       totalAktif,
       totalDonatur,
-      topZawiyah: topZawiyahRows as Zawiyah[],
+      topZawiyah: (topZawiyahRows || []).map((r: any) => ({
+        ...r,
+        jamaah: Number(r.jamaah) || 0,
+      })) as Zawiyah[],
       topPekerjaan: topPekerjaanRows as { label: string; count: number }[],
       pctLaki,
       pctPerempuan,
