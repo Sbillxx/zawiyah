@@ -259,7 +259,10 @@ export async function getAllJamaah(allowFallback = false, zawiyahId?: string): P
         nama,
         COALESCE(zawiyah_id, '') as zawiyahId,
         COALESCE(zawiyah_nama, '') as zawiyah,
-        COALESCE(jenis_kelamin, 'Laki-laki') as jenisKelamin,
+        CASE 
+          WHEN UPPER(TRIM(COALESCE(jenis_kelamin, ''))) IN ('P', 'PEREMPUAN', 'WANITA') THEN 'Perempuan'
+          ELSE 'Laki-laki'
+        END as jenisKelamin,
         COALESCE(status_pernikahan, '') as statusPernikahan,
         COALESCE(tempat_lahir, '') as tempatLahir,
         COALESCE(tanggal_lahir, '') as tanggalLahir,
@@ -268,7 +271,7 @@ export async function getAllJamaah(allowFallback = false, zawiyahId?: string): P
         COALESCE(ktp, '') as ktp,
         COALESCE(kk, '') as kk,
         COALESCE(alamat, '') as alamat,
-        COALESCE(pekerjaan, 'Lainnya') as pekerjaan,
+        CASE WHEN COALESCE(pekerjaan, '') IN ('', '0') THEN 'Lainnya' ELSE pekerjaan END as pekerjaan,
         COALESCE(koperasi, 'Tidak') as koperasi,
         COALESCE(agnia_care, 'Tidak') as agniaCare,
         COALESCE(status, 'Aktif') as status
@@ -345,8 +348,8 @@ export async function getDashboardStats(allowFallback = false, zawiyahId?: strin
 
       const [totalJamaahRows]: any = await pool.query('SELECT COUNT(*) as count FROM jamaah WHERE zawiyah_id = ? OR zawiyah_nama = ?', [zawiyahId, zawiyahNama]);
       const [totalAgniaRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND agnia_care = 'Ya'", [zawiyahId, zawiyahNama]);
-      const [totalLakiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND jenis_kelamin = 'Laki-laki'", [zawiyahId, zawiyahNama]);
-      const [totalPerempuanRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND jenis_kelamin = 'Perempuan'", [zawiyahId, zawiyahNama]);
+      const [totalLakiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND (jenis_kelamin IN ('Laki-laki', 'L', 'laki-laki', 'l') OR jenis_kelamin LIKE 'Laki%')", [zawiyahId, zawiyahNama]);
+      const [totalPerempuanRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND (jenis_kelamin IN ('Perempuan', 'P', 'perempuan', 'p') OR jenis_kelamin LIKE 'Perem%')", [zawiyahId, zawiyahNama]);
       const [totalKoperasiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND koperasi LIKE 'Ya%'", [zawiyahId, zawiyahNama]);
       const [totalAktifRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND status = 'Aktif'", [zawiyahId, zawiyahNama]);
 
@@ -355,7 +358,7 @@ export async function getDashboardStats(allowFallback = false, zawiyahId?: strin
           pekerjaan as label,
           COUNT(*) as count
         FROM jamaah
-        WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND pekerjaan IS NOT NULL AND TRIM(pekerjaan) != ''
+        WHERE (zawiyah_id = ? OR zawiyah_nama = ?) AND pekerjaan IS NOT NULL AND TRIM(pekerjaan) != '' AND TRIM(pekerjaan) != '0'
         GROUP BY pekerjaan
         ORDER BY count DESC
         LIMIT 6
@@ -404,8 +407,8 @@ export async function getDashboardStats(allowFallback = false, zawiyahId?: strin
     const [totalJamaahRows]: any = await pool.query('SELECT COUNT(*) as count FROM jamaah');
     const [totalZawiyahRows]: any = await pool.query('SELECT COUNT(*) as count FROM zawiyah');
     const [totalAgniaRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE agnia_care = 'Ya'");
-    const [totalLakiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE jenis_kelamin = 'Laki-laki'");
-    const [totalPerempuanRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE jenis_kelamin = 'Perempuan'");
+    const [totalLakiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (jenis_kelamin IN ('Laki-laki', 'L', 'laki-laki', 'l') OR jenis_kelamin LIKE 'Laki%')");
+    const [totalPerempuanRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE (jenis_kelamin IN ('Perempuan', 'P', 'perempuan', 'p') OR jenis_kelamin LIKE 'Perem%')");
     const [totalKoperasiRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE koperasi LIKE 'Ya%'");
     const [totalAktifRows]: any = await pool.query("SELECT COUNT(*) as count FROM jamaah WHERE status = 'Aktif'");
 
@@ -430,7 +433,7 @@ export async function getDashboardStats(allowFallback = false, zawiyahId?: strin
         pekerjaan as label,
         COUNT(*) as count
       FROM jamaah
-      WHERE pekerjaan IS NOT NULL AND TRIM(pekerjaan) != ''
+      WHERE pekerjaan IS NOT NULL AND TRIM(pekerjaan) != '' AND TRIM(pekerjaan) != '0'
       GROUP BY pekerjaan
       ORDER BY count DESC
       LIMIT 6
@@ -1090,7 +1093,10 @@ export async function searchJamaahForKetua(query: string, limit = 20): Promise<J
         nama,
         COALESCE(zawiyah_id, '') as zawiyah_id,
         COALESCE(zawiyah_nama, '') as zawiyah,
-        COALESCE(jenis_kelamin, 'Laki-laki') as jenisKelamin,
+        CASE 
+          WHEN UPPER(TRIM(COALESCE(jenis_kelamin, ''))) IN ('P', 'PEREMPUAN', 'WANITA') THEN 'Perempuan'
+          ELSE 'Laki-laki'
+        END as jenisKelamin,
         COALESCE(status_pernikahan, '') as statusPernikahan,
         COALESCE(tempat_lahir, '') as tempatLahir,
         COALESCE(tanggal_lahir, '') as tanggalLahir,

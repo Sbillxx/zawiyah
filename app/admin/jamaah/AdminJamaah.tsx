@@ -95,7 +95,8 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList, curr
         (j.alamat && j.alamat.toLowerCase().includes(q)) ||
         (j.pekerjaan && j.pekerjaan.toLowerCase().includes(q));
       const matchZawiyah = filterZawiyah === 'ALL' || j.zawiyah === filterZawiyah;
-      const matchGender = filterGender === 'ALL' || j.jenisKelamin === filterGender;
+      const isLaki = (j.jenisKelamin || '').toLowerCase().startsWith('l');
+      const matchGender = filterGender === 'ALL' || (filterGender === 'Laki-laki' ? isLaki : !isLaki);
       const matchAgnia =
         filterAgnia === 'ALL' || (filterAgnia === 'YA' ? j.agniaCare === 'Ya' : j.agniaCare !== 'Ya');
       const matchStatus = filterStatus === 'ALL' || j.status === filterStatus;
@@ -539,15 +540,20 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList, curr
                         {j.zawiyah}
                       </td>
                       <td onClick={() => setSelected(j)} className="px-5 py-3.5 hidden sm:table-cell cursor-pointer">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                            j.jenisKelamin === 'Laki-laki'
-                              ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                              : 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-300'
-                          }`}
-                        >
-                          {j.jenisKelamin === 'Laki-laki' ? 'L' : 'P'}
-                        </span>
+                        {(() => {
+                          const isLaki = (j.jenisKelamin || '').toLowerCase().startsWith('l');
+                          return (
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                isLaki
+                                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                                  : 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-300'
+                              }`}
+                            >
+                              {isLaki ? 'L' : 'P'}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td
                         onClick={() => setSelected(j)}
@@ -1187,15 +1193,20 @@ export default function AdminJamaah({ jamaahList: initialList, zawiyahList, curr
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  selected.jenisKelamin === 'Laki-laki'
-                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                    : 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-300'
-                }`}
-              >
-                {selected.jenisKelamin}
-              </span>
+              {(() => {
+                const isLaki = (selected.jenisKelamin || '').toLowerCase().startsWith('l');
+                return (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      isLaki
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                        : 'bg-pink-50 text-pink-700 dark:bg-pink-950 dark:text-pink-300'
+                    }`}
+                  >
+                    {isLaki ? 'Laki-laki' : 'Perempuan'}
+                  </span>
+                );
+              })()}
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
                   selected.status === 'Aktif'
