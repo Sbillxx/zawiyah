@@ -9,6 +9,32 @@ import { IMAGES } from '../assets/images';
 export const OverviewSection: React.FC = () => {
   const cardRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic live stats synced with database
+  const [stats, setStats] = React.useState({
+    totalJamaah: 6373,
+    totalZawiyah: 109,
+    totalDonatur: 146,
+  });
+
+  React.useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats?global=true');
+        const json = await res.json();
+        if (json.success && json.stats) {
+          setStats({
+            totalJamaah: json.stats.totalJamaah || 6373,
+            totalZawiyah: json.stats.totalZawiyah || 109,
+            totalDonatur: json.stats.totalDonatur || json.stats.totalAgniaCare || 146,
+          });
+        }
+      } catch (err) {
+        console.warn('OverviewSection: fetch stats error, using fallback:', err);
+      }
+    }
+    fetchStats();
+  }, []);
+
   // Smooth parallax scroll tracking mapped safely to card entry and exit
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -64,7 +90,7 @@ export const OverviewSection: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10 pt-4 pb-4 border-t border-[#243324]/10 dark:border-white/10">
             <div className="space-y-1">
               <div className="font-display text-3xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={4309} />
+                <AnimatedNumber value={stats.totalJamaah} />
               </div>
               <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Total Jamaah Terdata</p>
               <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] font-light">
@@ -74,7 +100,7 @@ export const OverviewSection: React.FC = () => {
 
             <div className="space-y-1">
               <div className="font-display text-3xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={86} />
+                <AnimatedNumber value={stats.totalZawiyah} />
               </div>
               <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Cabang Zawiyah Aktif</p>
               <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] font-light">
@@ -84,7 +110,7 @@ export const OverviewSection: React.FC = () => {
 
             <div className="space-y-1">
               <div className="font-display text-3xl sm:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-light tracking-tight">
-                <AnimatedNumber value={453} />
+                <AnimatedNumber value={stats.totalDonatur} />
               </div>
               <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-medium">Donatur & Peserta Agnia Care</p>
               <p className="text-xs sm:text-sm text-[#657351] dark:text-[#A3B59E] font-light">

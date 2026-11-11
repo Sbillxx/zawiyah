@@ -165,13 +165,13 @@ export const FALLBACK_ZAWIYAH: Zawiyah[] = [
 ];
 
 export const FALLBACK_STATS: DashboardStats = {
-  totalJamaah: 4309,
-  totalZawiyah: 86,
-  totalAgniaCare: 384,
-  totalLaki: 2150,
-  totalPerempuan: 2059,
+  totalJamaah: 6373,
+  totalZawiyah: 109,
+  totalAgniaCare: 146,
+  totalLaki: 3250,
+  totalPerempuan: 3123,
   totalKoperasi: 512,
-  totalAktif: 4309,
+  totalAktif: 6373,
   topZawiyah: FALLBACK_ZAWIYAH,
   topPekerjaan: [
     { label: 'Wirausaha / Pedagang', count: 1240 },

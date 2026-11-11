@@ -123,10 +123,10 @@ export const BoroughCorridorSection: React.FC = () => {
             Jejaring Dakwah & Sebaran Nusantara
           </p>
           <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl text-[#1F2B1D] dark:text-[#F4EFE6] font-normal leading-[1.1] sm:leading-[1.05] tracking-tight">
-            86 Titik Zawiyah Menghubungkan Jamaah se-Indonesia.
+            {totals.totalCabang || 109} Titik Zawiyah Menghubungkan Jamaah se-Indonesia.
           </h2>
           <p className="text-sm sm:text-lg text-[#4A5D44] dark:text-[#D2CBBF] font-light leading-relaxed">
-            Berakar pada <strong className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Zawiyah Pusat Tasikmalaya</strong> (Pagendingan) dan ditopang oleh <strong className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Zawiyah Utama DKI Jakarta</strong>, jangkauan dakwah membentang ke 84 cabang zawiyah mandiri di Sumatera, Jawa, Bali, Kalimantan, hingga Sulawesi.
+            Berakar pada <strong className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Zawiyah Pusat Tasikmalaya</strong> (Pagendingan) dan ditopang oleh <strong className="font-semibold text-[#1F2B1D] dark:text-[#F4EFE6]">Zawiyah Utama DKI Jakarta</strong>, jangkauan dakwah membentang ke seluruh cabang zawiyah mandiri di Sumatera, Jawa, Bali, Kalimantan, hingga Sulawesi.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export const BoroughCorridorSection: React.FC = () => {
                 }`}
               >
                 <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                <span>Daftar Cabang (86)</span>
+                <span>Daftar Cabang ({totals.totalCabang || 109})</span>
               </button>
             </div>
 

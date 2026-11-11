@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
                 SAJADA
               </h2>
               <p className="text-sm sm:text-base text-[#4A5D44] dark:text-[#CBD7C7] font-light leading-relaxed">
-                Sistem Administrasi Jamaah Zawiyah — merajut ukhuwah, pembinaan ruhani, dan khidmah kejamaahan di 86 cabang zawiyah se-Nusantara dalam satu saf ketakwaan.
+                Sistem Administrasi Jamaah Zawiyah — merajut ukhuwah, pembinaan ruhani, dan khidmah kejamaahan di cabang zawiyah se-Nusantara dalam satu saf ketakwaan.
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <a href="#sebaran-zawiyah" className="hover:text-[#1F2B1D] dark:hover:text-white transition-colors">
-                  Peta Sebaran 86 Zawiyah
+                  Peta Sebaran Cabang Zawiyah
                 </a>
               </li>
               <li>
@@ -99,7 +99,7 @@ export const Footer: React.FC = () => {
               Jejaring Nusantara
             </h4>
             <p className="text-[#4A5D44] dark:text-[#CBD7C7] font-light leading-relaxed">
-              Membina 4.309 jamaah yang tersebar di 86 cabang zawiyah mandiri di Sumatera, Jawa, Bali, Kalimantan, hingga Sulawesi, dengan dukungan filantropi terpadu Agnia Care.
+              Membina 6.373+ jamaah yang tersebar di cabang zawiyah mandiri di Sumatera, Jawa, Bali, Kalimantan, hingga Sulawesi, dengan dukungan filantropi terpadu Agnia Care.
             </p>
             <p className="text-[11px] text-[#657351] dark:text-[#A3B59E]">
               Data tunggal terverifikasi • Single Source of Truth

@@ -49,36 +49,6 @@ const DEFAULT_ACCOUNTS = [
     badgeText: 'text-[#1F2B1D] dark:text-[#F4EFE6]',
     icon: ShieldCheck,
   },
-  {
-    role: 'Eksekutif',
-    user: 'eksekutif',
-    pass: 'admin123',
-    nama: 'BPH / Pimpinan Yayasan',
-    desc: 'Laporan eksekutif & agregasi',
-    badgeBg: 'bg-[#4A5D44]/15 dark:bg-[#4A5D44]/40',
-    badgeText: 'text-[#384A33] dark:text-[#CBD7C7]',
-    icon: Building2,
-  },
-  {
-    role: 'Admin Zawiyah',
-    user: 'admin_karawang',
-    pass: 'admin123',
-    nama: 'Ust. Abdul Muyhi',
-    desc: 'Ketua Zawiyah Karawang (Kelola 260 Jamaah)',
-    badgeBg: 'bg-[#8F6A38]/15 dark:bg-[#8F6A38]/40',
-    badgeText: 'text-[#7A5524] dark:text-[#E8DCC4]',
-    icon: Users,
-  },
-  {
-    role: 'Admin Divisi',
-    user: 'admin_agnia',
-    pass: 'admin123',
-    nama: 'Admin Agnia Care',
-    desc: 'Divisi kepedulian Agnia Care',
-    badgeBg: 'bg-rose-500/10 dark:bg-rose-500/20',
-    badgeText: 'text-rose-700 dark:text-rose-300',
-    icon: Heart,
-  },
 ];
 
 export default function LoginPage() {
@@ -198,7 +168,7 @@ export default function LoginPage() {
 
   const zawiyahAccounts = useMemo(() => {
     return dbUsers
-      .filter((u) => u.role === 'ADMIN_ZAWIYAH' && u.username !== 'admin_karawang')
+      .filter((u) => u.role === 'ADMIN_ZAWIYAH')
       .map((u) => ({
         role: 'Ketua Zawiyah',
         user: u.username,
@@ -478,8 +448,8 @@ export default function LoginPage() {
                 </span>
               </div>
 
-              {/* 4 Core Featured Accounts */}
-              <div className="grid grid-cols-2 gap-2">
+              {/* Core Featured Account: Super Admin */}
+              <div className="space-y-2">
                 {featuredAccounts.map((acc) => {
                   const isCurrent = selectedDemo === acc.user;
                   const Icon = acc.icon;
@@ -488,32 +458,41 @@ export default function LoginPage() {
                       key={acc.user}
                       type="button"
                       onClick={() => handleSelectAccount(acc)}
-                      className={`text-left p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                      className={`w-full text-left p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
                         isCurrent
                           ? 'border-[#1F2B1D] dark:border-white/30 bg-[#243324]/8 dark:bg-white/10 shadow-sm'
                           : 'border-[#243324]/10 dark:border-white/10 hover:border-[#243324]/25 dark:hover:border-white/20 hover:bg-[#243324]/4 dark:hover:bg-white/5'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span
-                          className={`px-1.5 py-0.5 rounded-md text-[10px] font-semibold ${acc.badgeBg} ${acc.badgeText}`}
-                        >
-                          {acc.role}
-                        </span>
-                        <Icon className="w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E]" />
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#1F2B1D]/10 dark:bg-white/10 flex items-center justify-center shrink-0">
+                          <Icon className="w-4 h-4 text-[#1F2B1D] dark:text-[#F4EFE6]" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-medium text-[#243324] dark:text-[#F4EFE6]">
+                              {acc.user}
+                            </span>
+                            <span
+                              className={`px-1.5 py-0.5 rounded-md text-[10px] font-semibold ${acc.badgeBg} ${acc.badgeText}`}
+                            >
+                              {acc.role}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#657351] dark:text-[#A3B59E] truncate">
+                            {acc.nama}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[11px] font-mono font-medium text-[#243324] dark:text-[#F4EFE6] truncate">
-                        {acc.user}
-                      </p>
-                      <p className="text-[10px] text-[#657351] dark:text-[#A3B59E] truncate">
-                        {acc.nama}
-                      </p>
+                      <span className="text-[11px] font-medium text-[#4A5D44] dark:text-[#CBD7C7] shrink-0">
+                        Pilih →
+                      </span>
                     </button>
                   );
                 })}
               </div>
 
-              {/* Expandable Accordion for 85 other Zawiyah Branches */}
+              {/* Expandable Accordion for Zawiyah Branches */}
               {zawiyahAccounts.length > 0 && (
                 <div className="pt-1">
                   <button
@@ -523,7 +502,7 @@ export default function LoginPage() {
                   >
                     <span className="flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-[#657351] dark:text-[#A3B59E]" />
-                      <span>Akun Ketua Zawiyah Lainnya ({zawiyahAccounts.length} Cabang)</span>
+                      <span>Akun Ketua Zawiyah ({zawiyahAccounts.length} Cabang)</span>
                     </span>
                     {showAllZawiyahPicker ? (
                       <ChevronUp className="w-4 h-4 text-[#657351] dark:text-[#A3B59E]" />
