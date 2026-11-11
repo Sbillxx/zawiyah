@@ -1,26 +1,11 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
-const heroVideo = '/assets/images/video.mp4';
 
 export const HeroSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.defaultMuted = true;
-      videoRef.current.muted = true;
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Autoplay was prevented, wait for interaction or metadata
-        });
-      }
-    }
-  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -41,26 +26,25 @@ export const HeroSection: React.FC = () => {
     <section
       ref={containerRef}
       id="hero-section"
-      className="relative min-h-screen w-full flex flex-col justify-center items-center overflow-hidden px-4 sm:px-8 lg:px-12 text-center bg-[#1F2B1D]"
+      className="relative min-h-screen w-full flex flex-col justify-center items-center overflow-hidden px-4 sm:px-8 lg:px-12 text-center bg-[#141E13]"
     >
-      {/* Background Video from Assets */}
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        src={heroVideo}
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      >
-        <source src={heroVideo} type="video/mp4" />
-      </video>
+      {/* Background Video: Lebar Pas dengan Lebar Halaman (100% Width), Subtitle OFF */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <iframe
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[56.25vw] min-h-full min-w-[177.78vh] object-cover pointer-events-none"
+          src="https://www.youtube-nocookie.com/embed/9wDAZBxl_U4?autoplay=1&mute=1&loop=1&playlist=9wDAZBxl_U4&controls=0&showinfo=0&rel=0&iv_load_policy=3&cc_load_policy=3&disablekb=1&modestbranding=1&playsinline=1"
+          title="Background video"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          tabIndex={-1}
+          aria-hidden="true"
+        />
+      </div>
 
-      {/* Dark Green Overlay at 30% Opacity */}
-      <div className="absolute inset-0 bg-[#1F2B1D]/30 pointer-events-none z-10" />
+      {/* Dark Green Gradient Overlay: Menjaga Teks Tetap Tajam & Kontras */}
+      <div className="absolute inset-0 bg-[#141E13]/50 bg-[radial-gradient(ellipse_80%_80%_at_50%_-10%,rgba(65,95,60,0.3),rgba(20,30,19,0.7))] pointer-events-none z-10" />
 
-      {/* Foreground Content in Sandstone Color */}
+      {/* Foreground Content: SAJADA & Tagline di Depan Video Background */}
       <motion.div
         style={{ y: textY, opacity }}
         className="relative z-20 max-w-5xl mx-auto w-full flex flex-col items-center justify-center space-y-6 sm:space-y-8 text-[#F4EFE6] drop-shadow-[0_2px_24px_rgba(0,0,0,0.5)]"
@@ -105,5 +89,3 @@ export const HeroSection: React.FC = () => {
     </section>
   );
 };
-
-
