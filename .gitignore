@@ -44,3 +44,12 @@ next-env.d.ts
 *.sql
 *.db
 
+# large media files
+/public/videos/
+*.mp4
+*.webm
+!app/assets/images/video.mp4
+!app/assets/images/gorgeous-bees.webm
+!public/assets/images/video.mp4
+!public/assets/images/gorgeous-bees.webm
+
