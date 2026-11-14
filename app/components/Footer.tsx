@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowUp, ArrowRight } from 'lucide-react';
+import { ArrowUp, ArrowRight, ArrowUpRight } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const scrollToTop = () => {
@@ -29,7 +29,18 @@ export const Footer: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 flex-wrap">
+              <a
+                href="https://app.idrisiyyah.or.id/zawiyah/tasikmalaya/absensi"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Buka Dashboard GAMIS Tarekat Idrisiyyah"
+                className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-full border border-[#1F2B1D]/20 dark:border-white/20 text-[#1F2B1D] dark:text-[#F4EFE6] hover:bg-[#1F2B1D]/5 dark:hover:bg-white/10 text-xs font-medium tracking-wide transition-all cursor-pointer"
+              >
+                <span>Dashboard GAMIS</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+              </a>
+
               <Link
                 href="/login"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1F2B1D] dark:bg-[#F4EFE6] text-[#F4EFE6] dark:text-[#1F2B1D] text-xs font-medium tracking-wide hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer shadow-xs"

@@ -3,12 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "SAJADA — Sistem Monitoring Data Jamaah Zawiyah",
-  description: "Sistem Administrasi & Monitoring Jamaah Zawiyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
+  description: "Sistem Administrasi Jamaah Zawiyah Idrisiyyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
   keywords: ["SAJADA", "Zawiyah", "Idrisiyyah", "Tarekat Idrisiyyah", "Monitoring Jamaah", "Peta Zawiyah Nusantara"],
   authors: [{ name: "Tarekat Idrisiyyah" }],
   openGraph: {
     title: "SAJADA — Sistem Monitoring Data Jamaah Zawiyah",
-    description: "Sistem Administrasi & Monitoring Jamaah Zawiyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
+    description: "Sistem Administrasi Jamaah Zawiyah Idrisiyyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
     url: "https://sajada.vercel.app",
     siteName: "SAJADA Idrisiyyah",
     locale: "id_ID",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "SAJADA — Sistem Monitoring Data Jamaah Zawiyah",
-    description: "Sistem Administrasi & Monitoring Jamaah Zawiyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
+    description: "Sistem Administrasi Jamaah Zawiyah Idrisiyyah Idrisiyyah — Merajut ukhuwah dan khidmah jamaah di setiap zawiyah nusantara dalam satu saf ketakwaan.",
   },
 };
 

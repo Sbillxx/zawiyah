@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, ArrowUpRight } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const Navbar: React.FC = () => {
@@ -45,8 +45,23 @@ export const Navbar: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Top Right: Portal Admin & Persistent Sun/Moon Theme Toggle */}
-      <div className="pointer-events-auto flex items-center gap-2.5 sm:gap-3.5">
+      {/* Top Right: Dashboard GAMIS, Portal Admin & Persistent Sun/Moon Theme Toggle */}
+      <div className="pointer-events-auto flex items-center gap-2 sm:gap-2.5">
+        <a
+          href="https://app.idrisiyyah.or.id/zawiyah/tasikmalaya/absensi"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Buka Dashboard GAMIS Tarekat Idrisiyyah"
+          className={`text-xs font-semibold px-3 sm:px-3.5 py-1.5 rounded-full border transition-all duration-200 inline-flex items-center gap-1.5 ${
+            isScrolledPastHero
+              ? 'bg-transparent text-[#1F2B1D] dark:text-[#F4EFE6] border-[#1F2B1D]/20 dark:border-white/20 hover:bg-[#1F2B1D]/5 dark:hover:bg-white/10'
+              : 'bg-black/25 hover:bg-black/40 text-[#F4EFE6] border-white/40 backdrop-blur-sm'
+          }`}
+        >
+          <span>Dashboard GAMIS</span>
+          <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+        </a>
+
         <Link
           href="/login"
           className={`text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-200 ${

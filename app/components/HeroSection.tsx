@@ -47,7 +47,7 @@ export const HeroSection: React.FC = () => {
           className="space-y-4 sm:space-y-6"
         >
           <p className="text-xs sm:text-sm md:text-base font-semibold tracking-widest uppercase text-[#F4EFE6]">
-            Sistem Administrasi & Monitoring Jamaah Zawiyah
+            Sistem Administrasi Jamaah Zawiyah Idrisiyyah
           </p>
 
           <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-[0.95] text-[#F4EFE6] font-normal">
